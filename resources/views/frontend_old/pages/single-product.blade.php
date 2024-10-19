@@ -9,7 +9,7 @@
                     <p>
                         <a href="{{ url('/') }}">Home</a>
                         /
-                        <a href="javascript:void(0);">{{get_category_name($single_product_data['category_id'])}}</a>
+                        <a href="javascript:void(0);">Home &amp; Gadgets</a>
                     </p>
                 </div>
             </div>
@@ -22,33 +22,15 @@
             <div class="row">
                 <div class="col-md-4 col-12 mb-md-3 mb-2">
                     <div id="sing_prod_img_slider" class="carousel slide" data-ride="carousel">
-                        <ol class="carousel-indicators">
-                            @foreach($single_product_data['gallery'] as $index => $image)
-                                <li data-target="#sing_prod_img_slider" data-slide-to="{{ $index }}" class="{{ $index === 0 ? 'active' : '' }}"></li>
-                            @endforeach
-                        </ol>
                         <div class="carousel-inner">
                             @foreach($single_product_data['gallery'] as $index => $image)
                                 <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
                                     <img src="{{ asset('images/galleries/' . $image) }}" class="d-block w-100" alt="">
                                 </div>
- 
                             @endforeach
-                                   <button class="carousel-control-prev" type="button" data-target="#sing_prod_img_slider" data-slide="prev">
-                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                    <span class="sr-only">Previous</span>
-                                </button>
-
-                                <button class="carousel-control-next" type="button" data-target="#sing_prod_img_slider" data-slide="next">
-                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                    <span class="sr-only">Next</span>
-                                </button>
                         </div>
                     </div>
                 </div>
-
-
-
 
                 <div class="col-md-5 mb-3">
                     <h2 class="text-capitalize single_prod_title">{{ $single_product_data['title'] }}</h2>
@@ -91,9 +73,7 @@
                             <span>মোট  : </span> <span id="total_price">{{ $single_product_data['discount'] ? $single_product_data['discount_price'] : $single_product_data['price'] }}</span> টাকা
                         </div>
                         
-                        
-                        
-                       <input type="submit" class="btn px-4 order_now_btn order_now_btn_m" style="color: white; margin-top: 5px; background-color: #c9151b; border: 1px solid #c9151b; border-radius: 3px; padding: 10px 20px;" name="order_now" value="অর্ডার করুন">
+                        {{-- <input type="submit" class="btn px-4 order_now_btn order_now_btn_m" name="order_now" value="অর্ডার করুন"> --}}
                         <div class="mt-md-3 mt-2">
                             <input type="submit" class="btn px-4 add_cart_btn" name="add_cart" value="কার্ট-এ যোগ করুন">
                         </div>
@@ -132,7 +112,7 @@
                             </tbody>
                         </table>
                     </div>
-               <!--     <h6 class="font-weight-bold text-danger mt-md-3 mt-2">বিকাশ নাম্বার : {{$company_info->company_phone}}</h6>-->
+                    <h6 class="font-weight-bold text-danger mt-md-3 mt-2">বিকাশ নাম্বার : {{$company_info->company_phone}}</h6>
                 </div>
 
                 <div class="col-md-3 mb-3">

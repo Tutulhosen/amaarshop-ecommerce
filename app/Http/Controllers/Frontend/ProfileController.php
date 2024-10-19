@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use Mpdf\Mpdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -50,6 +51,7 @@ class ProfileController extends Controller
         $data['single_order']=$single_order;
         $data['order_invoice']=$order_invoice;
         $data['sub_title']='invoice';
+        
         return view('frontend.pages.invoice')->with($data);
     }
 
@@ -145,6 +147,35 @@ class ProfileController extends Controller
          return response()->json(['upazilas' => $upazilas]);
      }
 
+
+     //download invoice
+     public function downloadInvoice($id)
+     {
+        $single_order=DB::table('customer_order')->where('order_code', $id)->first();
+        // dd($single_order);
+        $order_invoice=DB::table('products')
+        ->join('customer_order', 'customer_order.product_id', 'products.id')
+        ->where('customer_order.order_code', $single_order->order_code)
+        ->select('products.title as title','customer_order.products_qty' ,'customer_order.additional_information as delivery_charge', 'products.price as offer_cost', 'products.discount as discount')
+        ->get();
+        
+        
+        $data['single_order']=$single_order;
+        $data['order_invoice']=$order_invoice;
+        $data['sub_title']='invoice';
+
+        $html = view('frontend.pages.invoice-template', compact('single_order', 'order_invoice'))->render();
+        // dd($html);
+        // Create an instance of mpdf
+        $mpdf = new Mpdf();
+
+        // Write the HTML content to PDF
+        $mpdf->WriteHTML($html);
+
+        // Output the generated PDF (forces download)
+        return $mpdf->Output('invoice_' . $single_order->order_code . '.pdf', 'D');
+         
+     }
      
 
 
