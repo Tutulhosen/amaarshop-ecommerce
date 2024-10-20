@@ -20,6 +20,13 @@ use App\Http\Controllers\backend\AdminDashboardController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Route::get('/clear-all', function() {
+    Artisan::call('config:clear');
+    Artisan::call('cache:clear');
+    Artisan::call('view:clear');
+    Artisan::call('route:clear');
+    return "Cache is cleared";
+});
 Route::get('/clear-cache', function() {
     $exitCode = Artisan::call('cache:clear');
     return '<h1>Cache facade value cleared</h1>';
@@ -76,6 +83,7 @@ Route::post('/checkout', [FrontendController::class, 'checkout'])->name('checkou
 Route::get('/shopping/card', [FrontendController::class, 'shopping_card'])->name('shopping.card');
 Route::post('/cart/update/{id}', [FrontendController::class, 'update'])->name('cart.update');
 Route::post('/cart/add', [FrontendController::class, 'cart_add'])->name('cart.add');
+Route::post('/cart/add/single', [FrontendController::class, 'cart_add_single'])->name('cart.add.single');
 Route::delete('/cart/remove/{id}', [FrontendController::class, 'remove'])->name('cart.remove');
 Route::get('/search', [FrontendController::class, 'search'])->name('search.results');
 Route::post('/single-product/quick_view', [FrontendController::class, 'single_product_quick_view'])->name('frontend.single.product.quick_view');
@@ -98,14 +106,4 @@ Route::get('/cart/count-div', [FrontendController::class, 'getCountDiv'])->name(
 Route::post('/clear-cart-session', [FrontendController::class, 'clearCartSession']);
 
 Route::post('/cart/clear', [FrontendController::class, 'clear'])->name('cart.clear');
-
-
-
-
-
-
-
-
-
-
 

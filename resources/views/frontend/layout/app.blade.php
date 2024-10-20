@@ -47,7 +47,7 @@
     <link rel="shortcut icon" href="{{asset('images/fav_icon/' . $meta->fav_icon)}}">
     @else
         
-    <link rel="shortcut icon" href="frontend/frontEnd/images/no_image.png">
+    <link rel="shortcut icon" href="{{asset('frontend/frontEnd/images/no_image.png')}}">
     @endif
     
     
@@ -93,7 +93,7 @@
 
 
 <script src="{{asset('frontend/frontEnd/plugins/owl-carousel/owl.carousel.min.js')}}"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="{{asset('frontend/backEnd/assets/vendor/toastr/toastr.min.js')}}"></script>
 	<script>

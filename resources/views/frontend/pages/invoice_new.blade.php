@@ -1,3 +1,7 @@
+<?php
+    $logo= DB::table('logo')->where('status', 1)->first();
+    $admin= DB::table('users')->where('role_id', 1)->first();
+?>
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
@@ -169,7 +173,7 @@
 <body cz-shortcut-listen="true" data-new-gr-c-s-check-loaded="8.912.0" data-gr-ext-installed="">
     <div class="invoice-box" style="position: relative">
         {{-- <div class="download_btn" style="position: absolute; top: 10px; right: 10px; padding: 10px; background-color: red; width: 50px; border-radius: 5px; text-align: center;">
-            <a style="color: white; text-decoration: none;" href="{{ route('download.invoice', $single_order->order_code) }}">Download</a>
+            <a style="color: white; text-decoration: none;" href="">Download</a>
         </div> --}}
         
         <table cellpadding="0" cellspacing="0">
@@ -179,7 +183,12 @@
                         <table>
                             <tbody><tr>
                                 <td class="title" style="text-align:center;">
-                                    <img src="{{asset('frontend/image/6649146b6febe.png')}}" style="margin:auto;height: 90px;">
+                                    @if ($logo->image)
+                                    <a href="{{route('home')}}"><img src="{{asset('images/logo/' . $logo->image)}}" alt="" style="margin:auto;height: 90px;"></a>
+                                    @else
+                                    <a href="{{route('home')}}"><img src="{{asset('frontend/uploads/6649146b6febe.png')}}" alt="" style="margin:auto;height: 90px;"></a>
+                                    @endif
+                                    
                                 </td>
                             </tr>
                             <tr>
@@ -314,11 +323,7 @@
                     <td>
                         {{-- Printed by- Mr. Faysal Kabir (Munna) @ 01/09/2024 03:12 AM --}}
                     </td>
-             
-                    
-                    @if (!Auth::user())
-                    <td><a href="{{route('home')}}" >Home</a></td>  
-                    @endif
+                    {{-- <td><a href="{{route('home')}}" >Home</a></td> --}}
                 </tr>
             </tbody>
         </table>

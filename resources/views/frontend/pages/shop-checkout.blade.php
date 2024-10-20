@@ -17,6 +17,8 @@
                                 <input type="hidden" name="shipping_cost" id="shipping_cost" value="90">
                                 @foreach ($cart as $item)
                                     <input type="hidden" name="product_ids[]" value="{{ $item['product_id'] }}">
+                                    <input type="hidden" name="quantities[]" value="{{ $item['qty'] }}">
+                                    <input type="hidden" name="total[]" value="{{ $item['price'] }}">
                                     
                                 @endforeach
                                 <div class="form-group">
@@ -88,7 +90,8 @@
                                             <!-- Product Quantity -->
                                             <td>
                                                 <input type="number" name="qty" value="{{ $item['qty'] }}" min="1" class="form-control qty-input" style="width: 60px;">
-                                                <input type="hidden" name="quantities[]" value="{{ $item['qty'] }}" class="hidden-qty"> <!-- Ensure hidden input is here -->
+                                                <input type="hidden" name="update_product_ids" value="{{ $item['product_id'] }}">
+                                               
                                             </td>
                                             
                                             <!-- Subtotal -->
@@ -97,8 +100,8 @@
                                     @empty
                                     <tr>
                                         <td colspan="5">
-                                            <h3>Your cart is empty</h3>
-                                            <a href="{{ route('home') }}" class="btn btn-primary">Continue Shopping</a>
+                                            <h3>কোন প্রোডাক্ট নেই</h3>
+                                            <a href="{{ route('home') }}" class="btn btn-primary">প্রোডাক্ট বাছাই করুন</a>
                                         </td>
                                     </tr>
                                     @endforelse
@@ -155,7 +158,7 @@
             function calculateTotals() {
                 let netTotal = 0;
                 $('.cart_table tbody tr').each(function() {
-                    let itemSubtotal = parseFloat($(this).find('td:nth-child(5)').text().replace(' BDT', '').trim()); // Adjusted to remove " BDT"
+                    let itemSubtotal = parseFloat($(this).find('td:nth-child(5)').text().replace(' BDT', '').trim()); 
                     netTotal += itemSubtotal; // Add it to net total
                 });
                 
@@ -174,17 +177,50 @@
 
             // Event for quantity change
             $('.qty-input').on('change', function() {
-                let row = $(this).closest('tr'); 
-                let price = parseFloat(row.find('td:nth-child(3)').text());
-                let quantity = parseInt($(this).val()); 
-              
-                
-                
-                let subtotal = price * quantity;
-                row.find('td:nth-child(5)').text(subtotal + ' BDT'); // Update subtotal cell
-                
-                calculateTotals(); // Recalculate totals after quantity change
+                let newQuantity = $(this).val();
+                let row = $(this).closest('tr');
+                let productId = row.find('input[name="update_product_ids"]').val(); 
+             
+                // SweetAlert confirmation
+                Swal.fire({
+                    title: 'Are you sure?',
+               
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/cart/update/' + productId, 
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                quantity: newQuantity
+                            },
+                            success: function(response) {
+                                Swal.fire(
+                                    'Updated!',
+                                    'Cart has been updated successfully.',
+                                    'success'
+                                ).then(() => {
+                                    location.reload();
+                                });
+                            },
+                            error: function(response) {
+                                Swal.fire(
+                                    'Error!',
+                                    'There was an error updating your cart.',
+                                    'error'
+                                );
+                            }
+                        });
+                    } else {
+                        $(this).val($(this).siblings('.hidden-qty').val());
+                    }
+                });
             });
+
 
             $('#checkout_form').on('submit', function(e) {
                 e.preventDefault(); // Prevent form from submitting normally
@@ -192,11 +228,6 @@
                  // Gather form data
                 let formData = $(this).serialize();
                 
-                // Calculate the grand total before sending the AJAX request
-                let grandTotal = calculateTotals(); // Call calculateTotals to ensure latest totals
-                alert(grandTotal);
-                // Append grand_total and total_price to formData
-                formData += `&grand_total=${grandTotal}`;
             
                 
                 // AJAX request
