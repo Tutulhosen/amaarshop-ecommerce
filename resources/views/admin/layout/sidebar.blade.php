@@ -1,3 +1,7 @@
+<?php
+    $logo= DB::table('logo')->where('status', 1)->first();
+    $admin= DB::table('users')->where('role_id', 1)->first();
+?>
 <style>
   .menu-link {
     text-decoration: none !important;
@@ -11,8 +15,15 @@
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
   <div class="app-brand demo">
     <a href="{{route('admin.dashboard.index')}}" class="app-brand-link" style="">
-      <img style="width: 200px" src="{{asset('green.png')}}" alt="">
+     
+      @if ($logo->image)
+      <img src="{{asset('images/logo/' . $logo->image)}}" alt="" style="width: 200px">
+      @else
+      <img src="{{asset('frontend/uploads/6649146b6febe.png')}}" alt="" style="width: 200px">
+      @endif
     </a>
+
+    
 
     <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
       <i class="bx bx-chevron-left bx-sm d-flex align-items-center justify-content-center"></i>
@@ -102,11 +113,11 @@
       </a>
 
       <ul class="menu-sub">
-        {{-- <li class="menu-item">
-          <a href="" class="menu-link">
+        <li class="menu-item">
+          <a href="{{route('admin.order.create')}}" class="menu-link">
             <div class="text-truncate" data-i18n="Without menu">Add New</div>
           </a>
-        </li> --}}
+        </li>
         <li class="menu-item">
           <a href="{{route('admin.order.list')}}" class="menu-link">
             <div class="text-truncate" data-i18n="Without navbar">List</div>

@@ -108,12 +108,14 @@ Route::middleware('admin')->group(function (){
     Route::name('admin.order.')->prefix('admin/order')->group(function () {
         Route::get('/list',[OrderController::class, 'orderList'])->name('list');
         Route::get('/search',[OrderController::class, 'orderSearchList'])->name('search');
-        Route::get('/page',[OrderController::class, 'uesrPage'])->name('page');
-        Route::post('/store',[OrderController::class, 'userStore'])->name('store');
+        Route::get('/product/search', [OrderController::class, 'search'])->name('product.search');
+        Route::get('/create',[OrderController::class, 'create'])->name('create');
+        Route::post('/store',[OrderController::class, 'store'])->name('store');
         Route::get('/update/{id}',[OrderController::class, 'userupdatePage'])->name('update.page');
         Route::post('/update',[OrderController::class, 'userUpdate'])->name('update');
         Route::get('/delete/{id}',[OrderController::class, 'userDelete'])->name('delete');
         Route::get('/status/update',[OrderController::class, 'orderStatusUpdate'])->name('status.update');
+        Route::get('/invoice/{id}', [OrderController::class, 'invoice'])->name('invoice');
     });
 
     // top header route

@@ -272,43 +272,21 @@
             
             // Send AJAX request to add product to cart
             $.ajax({
-                url: '{{ route("cart.add") }}',
-                type: 'POST',
+                url: "{{ route('cart.add') }}", // Assuming you have a route for adding items to the cart
+                method: "POST",
                 data: {
-                    _token: '{{ csrf_token() }}',
+                    _token: "{{ csrf_token() }}", // Laravel CSRF protection
                     product_id: productId,
                     qty: qty,
                     price: price
                 },
-                success: function (response) {
-                    if (response.already_in_cart) {
-                        // Toaster alert if the product is already in the cart
-                        toastr.info('This product is already in your cart!', 'Info');
-                    } else if (response.success) {
-                        // Get the updated cart count from the response
-                        cartCount = response.cart_count;
-                        
-                        // Save updated count to localStorage
-                        localStorage.setItem('cartCount', cartCount);
-                        
-                        // Update the cart count display
-                        $('#cart-count').text(cartCount);
-                        
-                        // Show the cart count badge only if count is greater than 0
-                        if (cartCount > 0) {
-                            $('#cart-count').show();
-                        } else {
-                            $('#cart-count').hide();
-                        }
-
-                        // Toaster alert for successfully adding to cart
-                        toastr.success('Product added to cart!', 'Success');
-                    }
+                success: function(response) {
+                    // Redirect to checkout page on successful response
+                    window.location.href = "{{ route('shop.checkout') }}";
                 },
-                error: function (error) {
-                    // Toaster alert for any errors
-                    toastr.error('Something went wrong. Please try again.', 'Error');
+                error: function(error) {
                     console.log(error);
+                    alert('Something went wrong! Please try again.');
                 }
             });
         });

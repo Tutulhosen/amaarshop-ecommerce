@@ -1,207 +1,263 @@
 @extends('admin.layout.app')
 
-
 @section('main-content')
-   <div class="row">
-        
-        <div class="col-md-12 grid-margin stretch-card">
+<style>
+    * {
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .form-group {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    
+    .form-group input, .form-group select, .form-group textarea {
+        flex-basis: 68%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .autocomplete-items {
+        position: absolute;
+        background: #fff;
+        border: 1px solid #ddd;
+        z-index: 99;
+        width: 50%;
+        right: 18%;
+        top:45px;
+        max-height: 150px;
+        overflow-y: auto;
+    }
+    
+    .autocomplete-items div {
+        padding: 10px;
+        cursor: pointer;
+        border-bottom: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+    }
+    
+    .autocomplete-items div img {
+        width: 50px;
+        height: 50px;
+        margin-right: 10px;
+    }
+
+    .autocomplete-items div:hover {
+        background-color: #e9e9e9;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    table th, table td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: left;
+    }
+
+    table th {
+        background-color: #f0f0f0;
+    }
+
+    .add-item-btn, .save-btn {
+        margin: 20px 0;
+        padding: 10px 20px;
+        background-color: #5cb85c;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    
+    .add-item-btn:hover, .save-btn:hover {
+        background-color: #4cae4c;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12 grid-margin stretch-card">
+        <form action="{{route('admin.order.store')}}" method="POST">
+            @csrf
             <div class="card">
                 <div class="card-body" style="border:1px solid green">
-                
                     <div class="headline">
-                        <h3 class="text-center">Product Form</h3>
+                        <h3 class="text-center">Order Form</h3>
                     </div><br>
-                    <form class="forms-sample" id="myform">
-                        @csrf
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="product_code">Product Code</label>
-                                    <input type="text" class="form-control" id="product_code" placeholder="Product code">
-                                </div>
-                                <div class="form-group">
-                                    <label for="title">Title</label>
-                                    <input type="text" class="form-control" id="title" placeholder="Title">
-                                </div>
-            
-                                <div class="form-group">
-                                    <label for="category_id">Category</label>
-                                    <select class="form-control" id="category_id" name="category_id">
-                                    <option value="">--Select--</option>
-                                    @foreach ($category as $item)
-                                        <option value="{{$item->id}}">{{$item->name}}</option>
-                                    @endforeach
-                                
-                                    </select>
-                                </div>
 
-                                <div class="form-group">
-                                    <label for="price">Price</label>
-                                    <input type="number" class="form-control" id="price" placeholder="price">
-                                </div>
-                                <div class="form-group">
-                                    <label for="discount">Discount</label>
-                                    <input type="number" class="form-control" id="discount" placeholder="discount">
-                                </div>
-                                <div class="form-group">
-                                    <label for="quantity">Quantity</label>
-                                    <input type="number" class="form-control" id="quantity" placeholder="quantity">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="description">Description</label>
-                                    <textarea class="form-control" id="description" rows="10"></textarea>
-                                </div>
-                               
-                            </div>
-                            <div class="col-md-6">
-                                
-                                
-                                <div class="mb-3">
-                                    <label>Thumbnail Image:</label>
-                                    <label for="imageUpload" class="form-label">Upload Image</label>
-                                    <input type="file" class="form-control" name="img[]" id="imageUpload" accept="image/*">
-                                </div>
-                                <div class="mb-3">
-                                    <img id="imagePreview" class="image-preview" src="https://via.placeholder.com/300" alt="Image Preview">
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label>Gallery:</label>
-                                    <label for="multipleImageUpload" class="form-label">Upload Images</label>
-                                    <input type="file" class="form-control" name="img[]" id="multipleImageUpload" accept="image/*" multiple>
-                                </div>
-                                
-                                <div class="mb-3" id="multipleImagePreviewContainer" style="display: flex; flex-wrap: wrap; gap: 10px;">
-                                    <!-- This is where image previews will be displayed -->
-                                </div>  
-                            </div>
-                        </div>
-                        
+                    <div class="form-group">
+                        <label for="customer">Customer: <span class="text-danger">*</span></label>
+                        <input type="text" id="customer" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Cust. Phone: <span class="text-danger">*</span></label>
+                        <input type="text" id="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address: <span class="text-danger">*</span></label>
+                        <input type="text" id="address" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="shipping_method">Delivery Area <span class="text-danger">*</span></label>
+                        <select name="shipping_method" id="shipping_method" class="form-control" required="">
+                            <option value="70" selected="selected">Inside Dhaka</option>
+                            <option value="170">Outside Dhaka</option>
+                        </select>
+                    </div>
 
-                        <div class="row">
-                            <div class="col-md-9"></div>
-                            <div class="col-md-3" style="text-align: right">
-                                <button class="btn btn-dark">Cancel</button>
-                                <button type="button" class="btn btn-primary mr-2" id="product_submit_btn" >Submit</button>
-                            </div>
-                        </div>
+                    <!-- Search Product -->
+                    <div class="form-group product-select" style="position: relative;">
+                        <label for="search_product">Item: </label>
+                        <input type="text" id="search_product" placeholder="Type to search..." autocomplete="off">
+                        <div style="width: 50%" class="autocomplete-items"></div>
+                    </div>
+                    
+                    <!-- Products Table -->
+                    <table class="cart_table table table-bordered table-striped text-center mb-0">
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Product Name & Image</th>
+                                <th>Price</th>
+                                <th>Qty</th>
+                                <th>Sub Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cart-body">
+                            <!-- Selected products will be dynamically added here -->
+                        </tbody>
                         
-                        
-                    </form>
+                        <tfoot>
+                            <tr>
+                                <th colspan="4" class="text-right">Net Total</th>
+                                <td id="net-total"> BDT</td> 
+                            </tr>
+                            <tr>
+                                <th colspan="4" class="text-right">Shipping Cost</th>
+                                <td id="shipping_charge"> BDT</td>
+                            </tr>
+                            <tr>
+                                <th colspan="4" class="text-right">Grand Total</th>
+                                <td id="grand-total"> BDT</td> 
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <div style="margin-top: 20px;">
+                        <button class="add-item-btn">Submit</button>
+                    </div>
                 </div>
             </div>
-        </div>
-       
-   </div>
+        </form>
+    </div>
+</div>
 @endsection
+
 @section('scripts')
-    
 <script>
-    ClassicEditor
-        .create(document.querySelector('#description'))
-        .catch(error => {
-            console.error(error);
-        });
-</script>
-
-
-
-
-<script>
-    CKEDITOR.replace('description');
-
-    $(document).ready(function(){
-        
-        $('#product_submit_btn').on('click', function(){
-           
-            
-            // Gather all input values
-            var product_code = $('#product_code').val();
-            var title = $('#title').val();
-            var category_id = $('#category_id').val();
-            var description = CKEDITOR.instances['description'].getData()
-            var price = $('#price').val();
-            var discount = $('#discount').val();
-            var quantity = $('#quantity').val();
-            var thumbnailImage = $('#imageUpload')[0].files[0]; // Assuming you're uploading a single thumbnail image
-            var galleryImages = $('#multipleImageUpload')[0].files; // Assuming you're uploading multiple gallery images
-          
-           
-            if (product_code == '') {
-                showToast('Enter The Product Code', 'error');
-                return; 
-            }
-            if (title == '') {
-                showToast('Enter A Product Title', 'error');
-                return; 
-            }
-
-            if (category_id == '') {
-                showToast('Select A Category', 'error');
-                return; 
-            }
-           
-            // if (description == '') {
-            //     showToast('Enter Some Product Description', 'error');
-            //     return; 
-            // }
-            if (price == '') {
-                showToast('Enter The Product Price', 'error');
-                return; 
-            }
-            if (thumbnailImage==undefined) {
-                showToast('Select A Thumbnail Image', 'error');
-                return; 
-            }
-            if (galleryImages.length == 0) {
-                showToast('Select Some Gallery Image', 'error');
-                return; 
-            }
-
-            // Create a FormData object to send data with AJAX
-            var formData = new FormData();
-            formData.append('product_code', product_code);
-            formData.append('title', title);
-            formData.append('category_id', category_id);
-            formData.append('description', description);
-            formData.append('price', price);
-            formData.append('discount', discount);
-            formData.append('quantity', quantity);
-            formData.append('thumbnail_image', thumbnailImage);
-            for (var i = 0; i < galleryImages.length; i++) {
-                formData.append('gallery_images[]', galleryImages[i]);
-            }
-            formData.append('_token', '{{ csrf_token() }}');
-
-            // Send data using AJAX
-            $.ajax({
-                url: "{{ route('admin.product.store') }}",
-                method: 'POST',
-                data: formData,
-                contentType: false, 
-                processData: false,
-                success: function(response) {
-                    if (response.status == true) {
-                        showToast(response.success, 'success');
-                        setTimeout(function() {
-                            // Redirect to the list page
-                            window.location.href = '/admin/product/list';  
-                        }, 1500);
+    $(document).ready(function() {
+        // Handle product search
+        $('#search_product').on('input', function() {
+            var query = $(this).val();
+            if (query.length > 0) {
+                $.ajax({
+                    url: "{{ route('admin.order.product.search') }}",
+                    method: 'GET',
+                    data: { query: query },
+                    success: function(response) {
+                        let suggestions = '';
+                        if (response.length > 0) {
+                            response.forEach(product => {
+                                suggestions += `
+                                    <div class="suggestion-item" data-id="${product.id}" data-name="${product.title}" data-price="${product.price}" data-thumbnail="${product.thumbnail}">
+                                        <img src="/images/galleries/${product.thumbnail}" alt="${product.title}">
+                                        <span>${product.title} - BDT ${product.price}</span>
+                                    </div>`;
+                            });
+                        } else {
+                            suggestions = `<div>No products found</div>`;
+                        }
+                        $('.autocomplete-items').html(suggestions).show();
                     }
-                },
-            });
+                });
+            } else {
+                $('.autocomplete-items').hide();
+            }
         });
 
+        // Handle product selection
+        $(document).on('click', '.suggestion-item', function() {
+            var productId = $(this).data('id');
+            var productName = $(this).data('name');
+            var productPrice = $(this).data('price');
+            var productThumbnail = $(this).data('thumbnail');
 
+            var row = `
+                <tr>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm remove-item">Remove</button>
+                    </td>
+                    <td>
+                        <img src="/images/galleries/${productThumbnail}" width="35" alt="${productName}">
+                        ${productName}
+                    </td>
+                    <td>BDT ${productPrice}</td>
+                    <td>
+                        <input type="number" name="qty" value="1" min="1" class="form-control qty-input" style="width: 60px;">
+                    </td>
+                    <td class="subtotal">BDT ${productPrice}</td>
+                </tr>
+            `;
 
+            $('#cart-body').append(row);
+            $('.autocomplete-items').hide();
+            $('#search_product').val('');
 
+            updateTotals();
+        });
 
+        // Remove product from cart
+        $(document).on('click', '.remove-item', function() {
+            $(this).closest('tr').remove();
+            updateTotals();
+        });
+
+        // Update total on quantity change
+        $(document).on('input', '.qty-input', function() {
+            var qty = $(this).val();
+            var price = $(this).closest('tr').find('td:nth-child(3)').text().replace('BDT', '').trim();
+            var subtotal = qty * price;
+            $(this).closest('tr').find('.subtotal').text('BDT ' + subtotal);
+
+            updateTotals();
+        });
+
+        // Update net total, shipping, and grand total
+        function updateTotals() {
+            var netTotal = 0;
+            $('#cart-body tr').each(function() {
+                var subtotal = $(this).find('.subtotal').text().replace('BDT', '').trim();
+                netTotal += parseFloat(subtotal);
+            });
+
+            var shippingCharge = parseFloat($('#shipping_method').val());
+            var grandTotal = netTotal + shippingCharge;
+
+            $('#net-total').text('BDT ' + netTotal);
+            $('#shipping_charge').text('BDT ' + shippingCharge);
+            $('#grand-total').text('BDT ' + grandTotal);
+        }
+
+        // Update shipping cost on area change
+        $('#shipping_method').on('change', function() {
+            updateTotals();
+        });
     });
-
 </script>
-
 @endsection
-
-
-

@@ -56,7 +56,10 @@
                     
                     
                     <div class="mt-md-3 mt-2">
-                        <input type="submit" class="btn px-4 add_cart_btn" name="add_cart" value="কার্ট-এ যোগ করুন">
+                        <input type="button" class="btn px-4 order_now_btn order_now_btn_m" style="color: white; margin-top: 5px; background-color: #c9151b; border: 1px solid #c9151b; border-radius: 3px; padding: 10px 20px;" name="order_now" value="অর্ডার করুন">
+                        {{-- <div class="mt-md-3 mt-2">
+                            <input type="submit" class="btn px-4 add_cart_btn" name="add_cart" value="কার্ট-এ যোগ করুন">
+                        </div> --}}
                     </div>
                 </form>
                 
@@ -120,26 +123,56 @@
                         // Get the updated cart count from the response
                         cartCount = response.cart_count;
                         
-                        
-                        
-                        
+                        // Save updated count to localStorage
                         localStorage.setItem('cartCount', cartCount);
-
+                        
                         // Update the cart count display
                         $('#cart-count').text(cartCount);
                         
-                    
+                        // Show the cart count badge only if count is greater than 0
+                        if (cartCount > 0) {
+                            $('#cart-count').show();
+                        } else {
+                            $('#cart-count').hide();
+                        }
 
                         // Toaster alert for successfully adding to cart
                         toastr.success('Product added to cart!', 'Success');
-
-                        
                     }
                 },
                 error: function (error) {
                     // Toaster alert for any errors
                     toastr.error('Something went wrong. Please try again.', 'Error');
                     console.log(error);
+                }
+            });
+        });
+
+        $('.order_now_btn_m').click(function (e) {
+            e.preventDefault();
+
+            // Get the product details
+            var productId = $('#product_id').val();
+            var qty = $('#qty').val();
+            var price = $('#product_price_value').val();
+            
+            // Send an AJAX request to add the product to the session
+            $.ajax({
+                url: "{{ route('cart.add') }}", // Assuming you have a route for adding items to the cart
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}", // Laravel CSRF protection
+                    product_id: productId,
+                    qty: qty,
+                    price: price
+                },
+                success: function(response) {
+                    // Redirect to checkout page on successful response
+                    window.location.href = "{{ route('shop.checkout') }}";
+                },
+                error: function(error) {
+                    console.log(error);
+                    alert('Something went wrong! Please try again.');
                 }
             });
         });

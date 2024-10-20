@@ -316,7 +316,7 @@ class FrontendController extends Controller
 
     public function checkout(Request $request)
     {
-        dd($request->all());
+        
         // Validate the incoming request
         $request->validate([
             'full_name' => 'required|string|max:255',
@@ -327,7 +327,9 @@ class FrontendController extends Controller
        
         $product_ids = $request->input('product_ids');
         $quantities = $request->input('quantities');
-        
+        $total = $request->input('total');
+        $delivery_charge=(int)$request->input('shipping_method');
+       
         // Retrieve the last order_code
         $lastOrder = DB::table('customer_order')
             ->orderBy('id', 'desc')
@@ -347,13 +349,24 @@ class FrontendController extends Controller
 
         // Flag to track whether the order insertion was successful
         $isInserted = false;
-
+        $total_array=[];
         foreach ($product_ids as $index => $product_id) {
+            //calculate total price
+            $total_price= ($quantities[$index]*$total[$index]);
+            array_push($total_array, $total_price);
+    
+        }
+        $grand_total = array_sum($total_array); 
+
+        $total_price=$grand_total+$delivery_charge;
+  
+        foreach ($product_ids as $index => $product_id) {
+        
             $id = DB::table('customer_order')->insertGetId([
                 'customer_id' => Auth::guard('customer')->user()->id ?? null,
                 'product_id' => $product_id,
                 'products_qty' => $quantities[$index],
-                'total_price' => $request->input('total'),
+                'total_price' => $total_price,
                 'full_name' => $request->input('full_name'),
                 'delivery_address' => $request->input('delivery_address'),
                 'phone_number' => $request->input('phone_number'),
@@ -364,10 +377,10 @@ class FrontendController extends Controller
             ]);
 
             if ($id) {
-                $isInserted = true; // Mark as inserted
+                $isInserted = true;
             }
         }
-
+        
         if ($isInserted) {
             $customer = Auth::guard('customer')->user();
             if ($customer) {
@@ -382,13 +395,17 @@ class FrontendController extends Controller
             }
 
             
-            return back()->with('success', 'Order placed successfully');
+            return response()->json([
+                'success' => true,
+                'message' => 'Order placed successfully',
+                'isCustomerlogin' => $isCustomerlogin,
+                'id' => $id,
+            ]);
         } else {
             return response()->json([
                 'success' => false,
                 'message' => 'Order failed'
             ]);
-            return back()->with('error', 'Order failed');
         }
     }
 
@@ -467,10 +484,34 @@ class FrontendController extends Controller
         ]);
     }
 
+    public function cart_add_single(Request $request)
+    {
+        $cart = session()->get('cart', []);
+        
+        // Check if the product is already in the cart
+        $product_id = $request->product_id;
+        if (isset($cart[$product_id])) {
+            // If product exists, update the quantity
+            $cart[$product_id]['qty'] += $request->qty;
+        } else {
+            // If product does not exist, add to cart
+            $cart[$product_id] = [
+                'product_id' => $request->product_id,
+                'qty' => $request->qty,
+                'price' => $request->price
+            ];
+        }
+
+        // Store the updated cart in the session
+        session()->put('cart', $cart);
+
+        return response()->json(['success' => true, 'message' => 'Product added to cart']);
+    }
+
     public function update(Request $request, $id)
     {
         $cart = session()->get('cart', []);
-        // dd(count($cart));
+      
         if (isset($cart[$id])) {
             $cart[$id]['qty'] = $request->input('quantity');
         }
