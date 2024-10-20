@@ -87,6 +87,7 @@ Route::post('/profile/update', [ProfileController::class, 'profile_update'])->na
 Route::get('/address/update/page', [ProfileController::class, 'address_update_page'])->name('user.address.update.page');
 Route::post('/address/update', [ProfileController::class, 'address_update'])->name('user.address.update');
 Route::get('/invoice/{id}', [ProfileController::class, 'invoice'])->name('product.invoice');
+Route::get('/download-invoice/{id}', [ProfileController::class, 'downloadInvoice'])->name('download.invoice');
 
 //get dependency data route
 Route::post('get/district',[ProfileController::class, 'get_district'])->name('get.district');
@@ -95,6 +96,8 @@ Route::post('get/upazila',[ProfileController::class, 'get_upazila'])->name('get.
 // Route to update cart session
 Route::get('/cart/count-div', [FrontendController::class, 'getCountDiv'])->name('cart.count.div');
 Route::post('/clear-cart-session', [FrontendController::class, 'clearCartSession']);
+
+Route::post('/cart/clear', [FrontendController::class, 'clear'])->name('cart.clear');
 
 
 

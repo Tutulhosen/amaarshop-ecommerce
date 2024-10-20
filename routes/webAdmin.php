@@ -5,14 +5,15 @@ use App\Http\Controllers\backend\LogoController;
 use App\Http\Controllers\backend\UserController;
 use App\Http\Controllers\backend\LoginController;
 use App\Http\Controllers\backend\OrderController;
+use App\Http\Controllers\backend\PixelController;
 use App\Http\Controllers\backend\SliderController;
 use App\Http\Controllers\backend\ProductController;
+use App\Http\Controllers\backend\ProfileController;
 use App\Http\Controllers\backend\TopHeaderController;
 use App\Http\Controllers\Frontend\FrontendController;
 use App\Http\Controllers\backend\MemberShipController;
 use App\Http\Controllers\backend\SocialLinkController;
 use App\Http\Controllers\backend\AdminDashboardController;
-use App\Http\Controllers\backend\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -145,6 +146,17 @@ Route::middleware('admin')->group(function (){
         Route::post('/update',[SocialLinkController::class, 'update'])->name('update');
         Route::get('/delete/{id}',[SocialLinkController::class, 'delete'])->name('delete');
         Route::get('/status/update/{id}',[SocialLinkController::class, 'status'])->name('status.update');
+    });
+
+    // facebook meta pixel
+    Route::name('admin.meta-pixel.')->prefix('admin/meta-pixel')->group(function () {
+        Route::get('/list',[PixelController::class, 'List'])->name('list');
+        Route::get('/page',[PixelController::class, 'create'])->name('create');
+        Route::post('/store',[PixelController::class, 'store'])->name('store');
+        Route::get('/update/{id}',[PixelController::class, 'update_page'])->name('update.page');
+        Route::post('/update',[PixelController::class, 'update'])->name('update');
+        Route::get('/delete/{id}',[PixelController::class, 'delete'])->name('delete');
+        Route::get('/status/update/{id}',[PixelController::class, 'status'])->name('status.update');
     });
 
     // member route

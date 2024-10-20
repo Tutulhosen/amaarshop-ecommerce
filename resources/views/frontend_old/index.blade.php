@@ -60,7 +60,7 @@
                             <a class="quick_view" data-id="{{ $product['id'] }}">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </a>
-                            <input type="submit" data-id="{{ $product['id'] }}" data-price="{{ $product['discount_price'] }}" data-qnt="1" class="btn btn-sm w-100 mb-2 add_cart_btn_direct" name="add_cart" value="অর্ডার করুন">
+                            <input type="submit" data-id="{{ $product['id'] }}" data-price="{{ $product['discount_price'] }}" data-qnt="1" class="btn btn-sm w-100 mb-2 add_cart_btn_direct" name="add_cart" value="কার্ট-এ যোগ করুন">
                            
                         </form>
                     </div>

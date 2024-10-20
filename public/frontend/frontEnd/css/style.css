@@ -588,7 +588,7 @@ span, h1, h2, h3, h4, h5, h6, p, a {
 }
 
 .cart_table td {
-    padding: 5px;
+    padding: 4px;
 }
 
 .cart_qty .fa-plus {
@@ -1300,7 +1300,7 @@ input[type="tel"],
 input[type="password"] {
     width: 100%;
     padding: 10px;
-    margin-bottom: 20px;
+
     border: 1px solid #ccc;
     border-radius: 5px;
     box-sizing: border-box;
@@ -1784,5 +1784,6 @@ button.btn:hover {
         color: #333;
         margin-bottom: 15px;
     }
+
 
     

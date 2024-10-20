@@ -66,7 +66,21 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
 <!-- Meta Pixel Code -->
-
+<script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '359203520520287');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=359203520520287&ev=PageView&noscript=1"
+    /></noscript>
 <!-- End Meta Pixel Code -->
 </head>
 <body>
@@ -82,10 +96,10 @@
    
     </div>
     {{-- whatsapp connection  --}}
-    <a href="https://wa.me/{{ preg_replace('/^0/', '+880', $user->company_phone) }}" class="" target="_blank" style="-webkit-appearance: none;" target="_blank" type="button" id="live_chat_btn">
-       <img class="wapp_chat" src="https://amaarshop.com/frontend/frontEnd/images/wapp_logo.png" alt="Whats App Chat">
+    <a href="https://wa.me/{{ preg_replace('/^0/', '+880', $user->company_phone) }}" class="whatsapp-float" target="_blank">
+        <i class="fab fa-whatsapp"></i>
     </a>
-
+	
 		
 	
 <script src="{{asset('frontend/frontEnd/js/jquery-3.3.1.min.js')}}"></script>

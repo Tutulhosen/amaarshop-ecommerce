@@ -195,7 +195,7 @@
                     <span class="cart-number d-none d-md-inline-block"><i class="fa fa-phone"></i> {{$admin->company_phone}}</span>
                     
                     <div class="cart d-inline-block position-relative">
-                        <a href="{{ route('shop.checkout') }}">
+                        <a href="{{ route('shopping.card') }}">
                             <i style="color: #fff" class="fa fa-2x fa-shopping-cart"></i>
                         </a>
                         <span id="cart-count" class="position-absolute badge rounded-pill bg-danger" style="display: {{ session('cart_count', 0) > 0 ? 'inline' : 'none' }}; color: white; font-size: 12px; padding: 5px 8px; top: 0; right: -14px;">

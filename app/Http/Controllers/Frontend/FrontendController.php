@@ -189,9 +189,10 @@ class FrontendController extends Controller
         }
     
         $gallery_images = DB::table('gallery')->where('product_id', $single_product->id)->get();
-        
+        // dd($single_product);
         $product = [
             'id' => $single_product->id,
+            'category_id' => $single_product->category_id,
             'product_code' => $single_product->product_code,
             'title' => $single_product->title,
             'price' => $single_product->price,
@@ -257,54 +258,76 @@ class FrontendController extends Controller
     }
     
 
+   
+
     public function shop_checkout()
     {
-        
-        // if (!Auth::guard('customer')->check()) {
-        //    return redirect()->route('frontend.login');
-        // }
-        // dd();
         $cart = session()->get('cart', []);
-        // dd($cart);
         $subtotal = 0;
         $discount = 0;
-        $shipping = 0;
+        $shipping = 70;
         $total = 0;
 
-        foreach ($cart as $item) {
+        foreach ($cart as $key => $item) {
             $subtotal += $item['qty'] * $item['price'];
+
+            // Fetch the product from the database
+            $single_product = DB::table('products')->where('id', $item['product_id'])->where('status', 1)->first();
+            
+            // Check if product exists and 'thumbnail' field is set
+            if ($single_product && isset($single_product->thumbnail)) {
+                // Update the thumbnail in the original cart array
+                $cart[$key]['thumbnail'] = $single_product->thumbnail;
+                $cart[$key]['title'] = $single_product->title;
+            } else {
+                // Set default thumbnail
+                $cart[$key]['thumbnail'] = '';
+                $cart[$key]['thumbnail'] = '';
+            }
         }
 
         $total = $subtotal - $discount + $shipping;
 
-        $data['category'] = DB::table('category')->where('status', 1)->get();
+        // Pass the updated cart array and other data to the view
         $data['cart'] = $cart;
         $data['subtotal'] = $subtotal;
-        $data['discount'] = $discount;
-        $data['shipping'] = $shipping;
         $data['total'] = $total;
-        $data['sub_title']='shop checkout';
+        $data['shipping'] = $shipping;
+        $data['sub_title'] = 'checkout';
+        $data['category'] = DB::table('category')->where('status', 1)->get();
 
-        return view('frontend.pages.shop-checkout')->with($data);
+        return view('frontend.pages.shop-checkout', $data);
     }
+
+
+    public function cart_remove($key)
+    {
+        $cart = session()->get('cart', []);
+
+        if (isset($cart[$key])) {
+            unset($cart[$key]);
+            session()->put('cart', $cart);
+        }
+
+        return redirect()->route('shop.checkout');
+    }
+
   
 
     public function checkout(Request $request)
     {
+        dd($request->all());
         // Validate the incoming request
         $request->validate([
             'full_name' => 'required|string|max:255',
             'phone_number' => 'required|string|max:15',
-            'email_address' => 'required|email|max:255',
-            'additional_address' => 'nullable|string|max:255',
-            'delivery_address' => 'required|string|max:255',
-            'payment_method' => 'required|string',
+           
         ]);
         $additionalAddress = $request->input('additional_address');
        
         $product_ids = $request->input('product_ids');
         $quantities = $request->input('quantities');
-
+        
         // Retrieve the last order_code
         $lastOrder = DB::table('customer_order')
             ->orderBy('id', 'desc')
@@ -356,20 +379,16 @@ class FrontendController extends Controller
                 // Remove all session data
                 session()->flush();
                 $isCustomerlogin = false;
-                $isCustomerlogin = false;
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Order placed successfully',
-                'isCustomerlogin' => $isCustomerlogin,
-                'id' => $id,
-            ]);
+            
+            return back()->with('success', 'Order placed successfully');
         } else {
             return response()->json([
                 'success' => false,
                 'message' => 'Order failed'
             ]);
+            return back()->with('error', 'Order failed');
         }
     }
 
@@ -522,6 +541,27 @@ class FrontendController extends Controller
         $sub_title='search';
         return view('frontend.pages.search_results', compact('products', 'category', 'sub_title'));
     }
+
+    // CartController.php
+    public function clear(Request $request)
+    {
+
+        $customer = Auth::guard('customer')->user();
+        if ($customer) {
+            // Remove all session data and log the user back in
+            session()->flush();
+            Auth::guard('customer')->login($customer);
+           
+        } else {
+            // Remove all session data
+            session()->flush();
+            
+        }
+      
+        
+        return redirect()->back()->with('success', 'Cart cleared successfully!');
+    }
+
 
     
 

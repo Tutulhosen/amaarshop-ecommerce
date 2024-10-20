@@ -2,226 +2,266 @@
 
 @section('main-content')
 <section>
-    <div class="main">
-        <div class="container-for-cart">
+    <div class="cart-section" style="text-align: center">
+        <div class="container">
+            @if (!empty($cart))
+            <div class="row">
+                <!-- Customer Information Section -->
+                <div class="col-md-5 col-12 mb-md-0 mb-4">
+                    <div class="card">
+                        <h5 class="font-weight-bold card-header">কাস্টমার ইনফরমেশন</h5>
+                        <div class="card-body p-2">
+                            <p class="text-center">অর্ডারটি কনফার্ম করতে আপনার নাম, ঠিকানা, মোবাইল নাম্বার, লিখে <span class="text-danger">অর্ডার কনফার্ম করুন</span> বাটনে ক্লিক করুন</p>
+                            <form action="{{ route('checkout') }}" method="post" id="checkout_form" class="checkout_form">
+                                @csrf
+                                <input type="hidden" name="shipping_cost" id="shipping_cost" value="90">
+                                @foreach ($cart as $item)
+                                    <input type="hidden" name="product_ids[]" value="{{ $item['product_id'] }}">
+                                    
+                                @endforeach
+                                <div class="form-group">
+                                    <label for="full_name">আপনার নাম <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="full_name" name="full_name" placeholder="আপনার নাম লিখুন" required="">
+                                </div>
 
-            <section class="cart-items">
-                <h1 style="font-size: 2rem; font-weight: 700; color: #333; margin-bottom: 20px;">Checkout</h1>
+                                <div class="form-group">
+                                    <label for="customer_phone">আপনার মোবাইল <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="customer_phone" name="phone_number" placeholder="আপনার মোবাইল লিখুন" minlength="11" required="">
+                                </div>
 
-                <ul role="list" class="payment-details">
-                    <!-- Payment Details Section -->
-                    <h2>Payment Details</h2>
-                    <form id="checkout-form">
-                        @csrf
-                        <!-- Loop through the cart items and add hidden inputs -->
-                        @foreach ($cart as $item)
-                            <input type="hidden" name="product_ids[]" value="{{ $item['product_id'] }}">
-                            <input type="hidden" name="quantities[]" value="{{ $item['qty'] }}">
-                        @endforeach
-                        <!-- Hidden field for total price -->
-                        <input type="hidden" value="{{ $total }}" name="total" id="total">
-                        
-                        <!-- Full Name and Phone Number -->
-                        <div class="input-group">
+                                <div class="form-group">
+                                    <label for="customer_address">আপনার ঠিকানা <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="customer_address" name="delivery_address" placeholder="আপনার ঠিকানা লিখুন" required=""></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="shipping_method">আপনার এরিয়া সিলেক্ট করুন <span class="text-danger">*</span></label>
+                                    <select name="shipping_method" id="shipping_method" class="form-control" required="">
+                                        <option value="70" selected="selected">ঢাকার ভিতরে</option>
+                                        <option value="170">ঢাকার বাইরে</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100 mb-2" style="height: 50px" id="conf_order_btn">অর্ডার কনফার্ম করুন</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Information Section -->
+                <div class="col-md-7 col-12">
+                    <div class="card">
+                        <h5 class="font-weight-bold card-header">Order Information</h5>
+                        <div class="card-body p-2 table-responsive">
+                            <table class="cart_table table table-bordered table-striped text-center mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Action</th>
+                                        <th>Product Name & Image</th>
+                                        <th>Price</th>
+                                        <th>Qty</th>
+                                        <th>Sub Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($cart as $key => $item)
+                                        <tr>
+                                            <!-- Delete Item Form -->
+                                            <td>
+                                                <form action="{{ route('cart.remove', $key) }}" method="post" style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" style="background-color: red !important" class="btn btn-danger btn-sm">
+                                                        <i class="fa fa-trash-o"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                            
+                                            <!-- Product Name and Image -->
+                                            <td>
+                                                <img src="{{ asset('images/galleries/' . $item['thumbnail']) }}" width="35" alt="">
+                                                <a href="#" style="font-size: 14px">{{ $item['title'] }}</a>
+                                            </td>
+                                            
+                                            <!-- Product Price -->
+                                            <td>{{ $item['price'] }} BDT</td>
+                                            
+                                            <!-- Product Quantity -->
+                                            <td>
+                                                <input type="number" name="qty" value="{{ $item['qty'] }}" min="1" class="form-control qty-input" style="width: 60px;">
+                                                <input type="hidden" name="quantities[]" value="{{ $item['qty'] }}" class="hidden-qty"> <!-- Ensure hidden input is here -->
+                                            </td>
+                                            
+                                            <!-- Subtotal -->
+                                            <td>{{ $item['qty'] * $item['price'] }} BDT</td>
+                                        </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="5">
+                                            <h3>Your cart is empty</h3>
+                                            <a href="{{ route('home') }}" class="btn btn-primary">Continue Shopping</a>
+                                        </td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                                
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="4" class="text-right">Net Total</th>
+                                        <td id="net-total">{{ $subtotal }} BDT</td> 
+                                    </tr>
+                                    <tr>
+                                        <th colspan="4" class="text-right">Shipping Cost</th>
+                                        <td id="shipping_charge">{{ $shipping }} BDT</td>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="4" class="text-right">Grand Total</th>
+                                        <td id="grand-total">{{ $total }} BDT</td> 
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between">
                             <div>
-                                <label for="full-name">Full Name <span style="color: red;">*</span></label>
-                                <input type="text" id="full-name" name="full_name" placeholder="Full Name" required value="{{ Auth::guard('customer')->user()->name ?? '' }}">
+                                <a href="{{ route('shop.page') }}" class="btn btn-info btn-sm"><i class="fa fa-angle-left"></i> Continue Shopping</a>
                             </div>
+                            
                             <div>
-                                <label for="phone-number">Phone Number <span style="color: red;">*</span></label>
-                                <input type="text" id="phone-number" name="phone_number" placeholder="Phone Number" required value="{{ Auth::guard('customer')->user()->phone ?? '' }}">
+                                <form action="{{ route('cart.clear') }}" method="post" style="display:inline;">
+                                    @csrf
+                                    <button style="padding: 10px" type="submit" class="btn btn-danger btn-lg">Clear Cart</button>
+                                </form>
                             </div>
                         </div>
-                        
-                        <!-- Email Address and Additional Address -->
-                        <div class="input-group">
-                            <div>
-                                <label for="email-address">Email Address</label>
-                                <input type="email" id="email-address" name="email_address" placeholder="Email Address" required value="{{ Auth::guard('customer')->user()->email ?? '' }}">
-                            </div>
-                            <div>
-                                <label for="additional-address">Your Location(It's necessary for delivery charge)<span style="color: red;">*</span></label>
-                                {{-- <input type="text" id="additional-address" name="additional_address" placeholder="Additional Address" value="{{ Auth::guard('customer')->user()->address ?? '' }}"> --}}
-                                <label>
-                                    <input type="radio" class="additional-address" name="additional_address" value="inside" required>
-                                    Inside Dhaka
-                                    <input type="radio" class="additional-address" name="additional_address" value="outside" required>
-                                    Outside Dhaka
-                                </label>
-                                
-                                
-                                 
-                            </div>
-                        </div>
-
-                        <!-- Delivery Address -->
-                        <label for="delivery-address">Delivery Address<span style="color: red;">*</span></label>
-                        {{-- <input type="text" id="delivery-address" name="delivery_address" placeholder="Delivery Address" required value="{{ Auth::guard('customer')->user()->delivery_address ?? '' }}"> --}}
-                        <textarea d="delivery-address" name="delivery_address" cols="30" rows="5" >{{ Auth::guard('customer')->user()->delivery_address ?? '' }}</textarea>
-
-                        <!-- Payment Method -->
-                        <fieldset class="payment-methods">
-                            <legend>Payment Method</legend>
-                            {{-- <div class="payment-method">
-                                <input type="radio" id="credit-card" name="payment_method" value="credit-card" required>
-                                <label for="credit-card" class="payment-label">
-                                    <div class="payment-icon" style="background: url('path-to-credit-card-icon.png') no-repeat center center; background-size: contain;"></div>
-                                    <span>Credit Card</span>
-                                </label>
-                            </div>
-                            <div class="payment-method">
-                                <input type="radio" id="paypal" name="payment_method" value="paypal">
-                                <label for="paypal" class="payment-label">
-                                    <div class="payment-icon" style="background: url('path-to-paypal-icon.png') no-repeat center center; background-size: contain;"></div>
-                                    <span>PayPal</span>
-                                </label>
-                            </div> --}}
-                            <div class="payment-method">
-                                <input type="radio" id="cash-on-delivery" name="payment_method" value="cash-on-delivery" checked>
-                                <label for="cash-on-delivery" class="payment-label">
-                                    <div class="payment-icon" style="background: url('path-to-cash-on-delivery-icon.png') no-repeat center center; background-size: contain;"></div>
-                                    <span>Cash on Delivery</span>
-                                </label>
-                            </div>
-                        </fieldset>
-
-                        <!-- Submit Button -->
-                        <button type="submit" class="checkout-button">Submit</button>
-                    </form>
-                </ul>
-            </section>
-
-            <!-- Order Summary Section -->
-            <section class="order-summary">
-                <h2>Order Summary</h2>
-                <dl>
-                    <!-- Subtotal -->
-                    <div style="display: flex; justify-content: space-between;">
-                        <dt>Subtotal</dt>
-                        <dd>BDT {{ $subtotal }}</dd>
                     </div>
-                    
-                    <!-- Discount -->
-                    {{-- <div style="padding-top: 16px; display: flex; justify-content: space-between;">
-                        <dt>Total Discount</dt>
-                        <dd>BDT {{ $discount }}</dd>
-                    </div> --}}
-                    
-                    <!-- Delivery Charge -->
-                    <div style="padding-top: 16px; display: flex; justify-content: space-between;">
-                        <dt>Delivery Charge</dt>
-                        <dd id="delivery-charge">BDT {{ $shipping }}</dd>
-                    </div>
-
-                    <!-- Total -->
-                    <div style="border-top: 3px solid #ddd; padding-top: 16px; display: flex; justify-content: space-between; margin-bottom: 16px;">
-                        <dt>Total</dt>
-                        <dd id="total-amount" data-total="{{ $total }}">BDT {{ $total }}</dd>
-                    </div>
-                </dl>
-            </section>
-
+                </div>
+            </div>
+            @else
+                <tr style="text-align: center; vertical-align: middle;">
+                    <td colspan="5">
+                        <h3>Your cart is empty</h3>
+                        <a href="{{ route('home') }}" class="btn btn-primary" style="margin-top: 15px;">Continue Shopping</a>
+                    </td>
+                </tr>            
+            @endif
         </div>
     </div>
 </section>
 @endsection
 
 @section('scripts')
-<script>
-    $(document).ready(function() {
-        $(document).on('click', '.additional-address', function() {
-            let location = $('input[name="additional_address"]:checked').val();
-            let charge = 0;
-
-            if (location == 'inside') {
-                charge = 70;
-            } else {
-                charge = 120;
+    <script>
+        $(document).ready(function() {
+            // Function to calculate totals
+            function calculateTotals() {
+                let netTotal = 0;
+                $('.cart_table tbody tr').each(function() {
+                    let itemSubtotal = parseFloat($(this).find('td:nth-child(5)').text().replace(' BDT', '').trim()); // Adjusted to remove " BDT"
+                    netTotal += itemSubtotal; // Add it to net total
+                });
+                
+                let shippingCharge = parseFloat($('#shipping_method').val()); // Get the shipping cost
+                let grandTotal = netTotal + shippingCharge; // Calculate grand total
+                
+                // Update the totals in the table
+                $('#net-total').text(netTotal + ' BDT');
+                $('#shipping_charge').text(shippingCharge + ' BDT');
+                $('#grand-total').text(grandTotal + ' BDT');
             }
 
-            // Update the delivery charge in the UI
-            $('#delivery-charge').text('BDT ' + charge);
+            $('#shipping_method').on('change', function() {
+                calculateTotals(); // Recalculate totals when shipping method changes
+            });
 
-            // Get the original total value (assuming it's stored in a data attribute or variable)
-            let originalTotal = parseFloat($('#total-amount').data('total'));
+            // Event for quantity change
+            $('.qty-input').on('change', function() {
+                let row = $(this).closest('tr'); 
+                let price = parseFloat(row.find('td:nth-child(3)').text());
+                let quantity = parseInt($(this).val()); 
+              
+                
+                
+                let subtotal = price * quantity;
+                row.find('td:nth-child(5)').text(subtotal + ' BDT'); // Update subtotal cell
+                
+                calculateTotals(); // Recalculate totals after quantity change
+            });
 
-            // Recalculate the total and round it to the nearest integer
-            let newTotal = Math.round(originalTotal + charge);
-
-            // Update the total in the UI without decimals
-            $('#total-amount').text('BDT ' + newTotal);
-            $('#total').val(newTotal);
-        });
-
-
-        $('#checkout-form').on('submit', function(e) {
-            e.preventDefault(); // Prevent form from submitting normally
-
-            // Gather form data
-            let formData = $(this).serialize();
-           
+            $('#checkout_form').on('submit', function(e) {
+                e.preventDefault(); // Prevent form from submitting normally
+               
+                 // Gather form data
+                let formData = $(this).serialize();
+                
+                // Calculate the grand total before sending the AJAX request
+                let grandTotal = calculateTotals(); // Call calculateTotals to ensure latest totals
+                alert(grandTotal);
+                // Append grand_total and total_price to formData
+                formData += `&grand_total=${grandTotal}`;
             
-            // AJAX request
-            $.ajax({
-                url: '{{ route("checkout") }}', 
-                type: 'POST',
-                data: formData,
-                headers: {
-                    'X-CSRF-TOKEN': $('input[name=_token]').val() 
-                },
-                success: function(response) {
-                    // Clear localStorage
-                    localStorage.clear();
+                
+                // AJAX request
+                $.ajax({
+                    url: '{{ route("checkout") }}', 
+                    type: 'POST',
+                    data: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': $('input[name=_token]').val() 
+                    },
+                    success: function(response) {
+                        // Clear localStorage
+                        localStorage.clear();
 
-                    // Show Toastr success notification with a cancel button
-                    toastr.options = {
-                        "closeButton": true, // Adds the close (X) button
-                        "progressBar": true, // Progress bar at the bottom
-                        "positionClass": "toast-top-right", // Position of the toaster
-                        "onclick": null, // No click handler
-                        "showDuration": "300",
-                        "hideDuration": "1000",
-                        "timeOut": "5000", // Auto-close after 5 seconds
-                        "extendedTimeOut": "1000",
-                        "showEasing": "swing",
-                        "hideEasing": "linear",
-                        "showMethod": "fadeIn",
-                        "hideMethod": "fadeOut",
-                    };
+                        // Show Toastr success notification with a cancel button
+                        toastr.options = {
+                            "closeButton": true, // Adds the close (X) button
+                            "progressBar": true, // Progress bar at the bottom
+                            "positionClass": "toast-top-right", // Position of the toaster
+                            "onclick": null, // No click handler
+                            "showDuration": "300",
+                            "hideDuration": "1000",
+                            "timeOut": "5000", // Auto-close after 5 seconds
+                            "extendedTimeOut": "1000",
+                            "showEasing": "swing",
+                            "hideEasing": "linear",
+                            "showMethod": "fadeIn",
+                            "hideMethod": "fadeOut",
+                        };
 
-                    // Display success message with a cancel button
-                    toastr.success('Order placed successfully!', 'Success', {
-                        closeButton: true,
-                        tapToDismiss: false, // Disables auto-dismiss when clicked
-                        timeOut: 0, // Ensures the toast doesn't disappear automatically
-                        extendedTimeOut: 0, // Keeps it until user manually closes
-                        onclick: function() {
-                            toastr.clear(); // Optional: dismiss toaster on click
-                        }
-                    });
-
-                    setTimeout(function() {
-                        if (response.isCustomerlogin==true) {
-                            window.location.href = '{{ route("user.profile") }}';
-                        } else {
-                            let id =response.id;
-                            window.location.href = '{{ route("product.invoice", ":id") }}'.replace(':id', id);
-                        }
-                    }, 3000);
-                },
-                error: function(response) {
-                    // Handle validation errors or other errors
-                    if (response.status === 422) {
-                        let errors = response.responseJSON.errors;
-                        $.each(errors, function(key, value) {
-                            alert(value); // Display error messages (customize as needed)
+                        // Display success message with a cancel button
+                        toastr.success('Order placed successfully!', 'Success', {
+                            closeButton: true,
+                            tapToDismiss: false, // Disables auto-dismiss when clicked
+                            timeOut: 0, // Ensures the toast doesn't disappear automatically
+                            extendedTimeOut: 0, // Keeps it until user manually closes
+                            onclick: function() {
+                                toastr.clear(); // Optional: dismiss toaster on click
+                            }
                         });
-                    } else {
-                        alert('Something went wrong, please try again.');
+
+                        setTimeout(function() {
+                            if (response.isCustomerlogin==true) {
+                                window.location.href = '{{ route("user.profile") }}';
+                            } else {
+                                let id =response.id;
+                                window.location.href = '{{ route("product.invoice", ":id") }}'.replace(':id', id);
+                            }
+                        }, 3000);
+                    },
+                    error: function(response) {
+                        // Handle validation errors or other errors
+                        if (response.status === 422) {
+                            let errors = response.responseJSON.errors;
+                            $.each(errors, function(key, value) {
+                                alert(value); // Display error messages (customize as needed)
+                            });
+                        } else {
+                            alert('Something went wrong, please try again.');
+                        }
                     }
-                }
+                });
             });
         });
-    });
-</script>
+
+
+    </script>
 @endsection

@@ -78,6 +78,7 @@
                                 <th>Customer Name</th>
                                 <th>Total Price</th>
                                 <th>Phone Number</th>
+                                <th>invoice</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                                 
@@ -95,6 +96,7 @@
                                             <td>{{$order->full_name}}</td>
                                             <td>{{$order->total_price}}</td>
                                             <td>{{$order->phone_number}}</td>
+                                            <td style="text-align:center"><a href="{{route('product.invoice', $order->id)}}" target="_blank"><i id="invoice" class="fa-solid fa-file-lines" style="font-size: 30px; text-align:center; cursor:pointer; color:green"></i></a></td>
                                             <?php 
                                                 $color=' ';
                                                 $bg_color=' ';
