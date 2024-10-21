@@ -135,6 +135,7 @@
                                                 <div class="dropdown-menu">
                                                     {{-- <a class="dropdown-item" href=""><i class="bx bx-edit-alt me-1"></i> Edit</a> --}}
                                                     @if ($order->order_status==0)
+                                                        <a class="dropdown-item" href="{{ route('admin.order.edit', $order->order_code) }}">Edit</a>
                                                         <a class="dropdown-item" href="javascript:void(0);" id="accept_btn" data-id="{{$order->order_code}}" data-type="accept">Accept</a>
                                                         <a class="dropdown-item" href="javascript:void(0);" id="cancel_btn" data-id="{{$order->order_code}}" data-type="cancel">Cancel</a>
                                                     @endif
@@ -142,6 +143,8 @@
                                                     <p style="color: red">Cancel</p>
                                                     @endif
                                                     @if ($order->order_status==2)
+                                                        <a class="dropdown-item" href="{{ route('admin.order.edit', $order->order_code) }}">Edit</a>
+
                                                         <a class="dropdown-item" href="javascript:void(0);" id="on_delivery_btn" data-id="{{$order->order_code}}" data-type="on_delivery">On Delivery</a>
                                                         @if (empty($is_order_placed))
                                                         <a class="dropdown-item" href="" id="place_order_btn" data-id="{{$order->id}}" data-type="on_delivery">Place Order</a>

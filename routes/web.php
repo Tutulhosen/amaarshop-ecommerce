@@ -107,13 +107,3 @@ Route::post('/clear-cart-session', [FrontendController::class, 'clearCartSession
 
 Route::post('/cart/clear', [FrontendController::class, 'clear'])->name('cart.clear');
 
-
-
-
-
-
-
-
-
-
-

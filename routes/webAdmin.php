@@ -108,8 +108,10 @@ Route::middleware('admin')->group(function (){
     Route::name('admin.order.')->prefix('admin/order')->group(function () {
         Route::get('/list',[OrderController::class, 'orderList'])->name('list');
         Route::get('/search',[OrderController::class, 'orderSearchList'])->name('search');
-        Route::get('/product/search', [OrderController::class, 'search'])->name('product.search');
         Route::get('/create',[OrderController::class, 'create'])->name('create');
+        Route::get('/edit/{order_code}', [OrderController::class, 'edit'])->name('edit');
+        Route::post('/update/by/{order_code}', [OrderController::class, 'update_by'])->name('update.by');
+        Route::get('/product/search',[OrderController::class, 'searchProduct'])->name('product.search');
         Route::post('/store',[OrderController::class, 'store'])->name('store');
         Route::get('/update/{id}',[OrderController::class, 'userupdatePage'])->name('update.page');
         Route::post('/update',[OrderController::class, 'userUpdate'])->name('update');

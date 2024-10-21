@@ -100,8 +100,8 @@
                                     @empty
                                     <tr>
                                         <td colspan="5">
-                                            <h3>Your cart is empty</h3>
-                                            <a href="{{ route('home') }}" class="btn btn-primary">Continue Shopping</a>
+                                            <h3>কোন প্রোডাক্ট নেই</h3>
+                                            <a href="{{ route('home') }}" class="btn btn-primary">প্রোডাক্ট বাছাই করুন</a>
                                         </td>
                                     </tr>
                                     @endforelse

@@ -183,12 +183,12 @@
                         <table>
                             <tbody><tr>
                                 <td class="title" style="text-align:center;">
-                                   
                                     @if ($logo->image)
-                                    <img src="{{asset('images/logo/' . $logo->image)}}" alt="" style="margin:auto;height: 90px;">
+                                    <a href="{{route('home')}}"><img src="{{asset('images/logo/' . $logo->image)}}" alt="" style="margin:auto;height: 90px;"></a>
                                     @else
-                                    <img src="{{asset('frontend/uploads/6649146b6febe.png')}}" alt="" style="margin:auto;height: 90px;">
+                                    <a href="{{route('home')}}"><img src="{{asset('frontend/uploads/6649146b6febe.png')}}" alt="" style="margin:auto;height: 90px;"></a>
                                     @endif
+                                    
                                 </td>
                             </tr>
                             <tr>
@@ -323,7 +323,7 @@
                     <td>
                         {{-- Printed by- Mr. Faysal Kabir (Munna) @ 01/09/2024 03:12 AM --}}
                     </td>
-                    <td><a href="{{route('home')}}" >Home</a></td>
+                    {{-- <td><a href="{{route('home')}}" >Home</a></td> --}}
                 </tr>
             </tbody>
         </table>
