@@ -14,6 +14,7 @@ use App\Http\Controllers\Frontend\FrontendController;
 use App\Http\Controllers\backend\MemberShipController;
 use App\Http\Controllers\backend\SocialLinkController;
 use App\Http\Controllers\backend\AdminDashboardController;
+use App\Http\Controllers\backend\DeliveryChargeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -150,6 +151,17 @@ Route::middleware('admin')->group(function (){
         Route::post('/update',[SocialLinkController::class, 'update'])->name('update');
         Route::get('/delete/{id}',[SocialLinkController::class, 'delete'])->name('delete');
         Route::get('/status/update/{id}',[SocialLinkController::class, 'status'])->name('status.update');
+    });
+
+    // Delivery charge route
+    Route::name('admin.delivery.charge.')->prefix('admin/delivery/charge')->group(function () {
+        Route::get('/list',[DeliveryChargeController::class, 'List'])->name('list');
+        Route::get('/page',[DeliveryChargeController::class, 'create'])->name('create');
+        Route::post('/store',[DeliveryChargeController::class, 'store'])->name('store');
+        Route::get('/update/{id}',[DeliveryChargeController::class, 'update_page'])->name('update.page');
+        Route::post('/update',[DeliveryChargeController::class, 'update'])->name('update');
+        Route::get('/delete/{id}',[DeliveryChargeController::class, 'delete'])->name('delete');
+        Route::get('/status/update/{id}',[DeliveryChargeController::class, 'status'])->name('status.update');
     });
 
     // facebook meta pixel

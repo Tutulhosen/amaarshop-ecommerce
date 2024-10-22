@@ -113,22 +113,18 @@
                     <div class="col-12 mt-3 delivery_details" style="padding: 0">
                         <table class="table" style="color:#08c !important">
                             <tbody>
+                                @foreach ($delivery_charge as $item)
                                 <tr class="ml-2">
                                     <td style="padding-left: 0; border-bottom: 1px solid #ddd; padding-left:10px;">
-                                        হোম ডেলিভারি
+                                        {{$item->name_bn}}
                                     </td>
                                     <td style="border-bottom: 1px solid #ddd;">
-                                        <b>৳ 90</b>
+                                        <b>{{$item->charge}}</b>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td style="padding-left: 0; border-bottom: 1px solid #ddd; padding-left:10px;">
-                                        হোম ডেলিভারি
-                                    </td>
-                                    <td style="border-bottom: 1px solid #ddd;">
-                                        <b>৳ 110</b>
-                                    </td>
-                                </tr>
+                                @endforeach
+                                
+                                
                             </tbody>
                         </table>
                     </div>

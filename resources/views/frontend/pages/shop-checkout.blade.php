@@ -39,8 +39,12 @@
                                 <div class="form-group">
                                     <label for="shipping_method">আপনার এরিয়া সিলেক্ট করুন <span class="text-danger">*</span></label>
                                     <select name="shipping_method" id="shipping_method" class="form-control" required="">
-                                        <option value="70" selected="selected">ঢাকার ভিতরে</option>
-                                        <option value="170">ঢাকার বাইরে</option>
+                                        <option value="">--এরিয়া সিলেক্ট করুন--</option>
+                                        @foreach ($delivery_charge as $item)
+                                        <option value="{{$item->charge}}" >{{$item->name_bn}}</option>
+                                            
+                                        @endforeach
+                                        
                                     </select>
                                 </div>
                                 <button type="submit" class="btn btn-success w-100 mb-2" style="height: 50px" id="conf_order_btn">অর্ডার কনফার্ম করুন</button>
@@ -114,7 +118,7 @@
                                     </tr>
                                     <tr>
                                         <th colspan="4" class="text-right">Shipping Cost</th>
-                                        <td id="shipping_charge">{{ $shipping }} BDT</td>
+                                        <td id="shipping_charge">----{{ $shipping }} BDT</td>
                                     </tr>
                                     <tr>
                                         <th colspan="4" class="text-right">Grand Total</th>

@@ -16,6 +16,7 @@ class OrderController extends Controller
         ->groupBy('order_code')
         ->orderBy('id', 'DESC')
         ->paginate(10);
+        
 
         // dd($data['order_list']);
         
@@ -24,8 +25,8 @@ class OrderController extends Controller
 
     public function create(){
         
-        
-        return view('admin.order.create');
+        $data['delivery_charge']=DB::table('delivery_charge')->where('status', 1)->get();
+        return view('admin.order.create')->with($data);
     }
 
     public function searchProduct(Request $request)
@@ -34,7 +35,7 @@ class OrderController extends Controller
 
         // Search for products by title
         $products = DB::table('products')->where('title', 'LIKE', '%' . $searchTerm . '%')
-            ->select('id', 'title', 'price', 'thumbnail') // Select relevant fields
+            ->select('id', 'title', 'price','discount', 'thumbnail') // Select relevant fields
             ->get();
 
         return response()->json($products);

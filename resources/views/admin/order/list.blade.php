@@ -353,6 +353,11 @@
                                     <td>${order.full_name}</td>
                                     <td>${order.total_price}</td>
                                     <td>${order.phone_number}</td>
+                                    <td style="text-align:center">
+                                        <a href="/admin/order/invoice/${order.id}" target="_blank">
+                                            <i class="fa-solid fa-file-lines" style="font-size: 30px; text-align:center; cursor:pointer; color:green"></i>
+                                        </a>
+                                    </td>
                                     <td>
                                         <button style="border-radius: 5px; color:${color}; background-color:${bg_color}; border:2px solid ${bg_color}">
                                             ${orderStatusMap[order.order_status]} <!-- Use the orderStatusMap here -->

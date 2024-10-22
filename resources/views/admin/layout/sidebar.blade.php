@@ -147,6 +147,11 @@
             <div class="text-truncate" data-i18n="Without menu">Social Link</div>
           </a>
         </li>
+        <li class="menu-item">
+          <a href="{{route('admin.delivery.charge.list')}}" class="menu-link">
+            <div class="text-truncate" data-i18n="Without menu">Delivery Charge</div>
+          </a>
+        </li>
        
       </ul>
     </li>

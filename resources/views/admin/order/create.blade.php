@@ -103,10 +103,13 @@
                         <input type="text" id="address" name="delivery_address" required>
                     </div>
                     <div class="form-group">
-                        <label for="shipping_method">আপনার এরিয়া সিলেক্ট করুন <span class="text-danger">*</span></label>
+                        <label for="shipping_method">Select Area<span class="text-danger">*</span></label>
                         <select name="shipping_method" id="shipping_method" class="form-control" required>
-                            <option value="70" selected>ঢাকার ভিতরে</option>
-                            <option value="170">ঢাকার বাইরে</option>
+                            <option value="">--select area--</option>
+                            @foreach ($delivery_charge as $item)
+                            <option value="{{$item->charge}}" >{{$item->name_en}}</option>
+                            @endforeach
+                   
                         </select>
                     </div>
                     <!-- Search Product -->
@@ -129,7 +132,30 @@
                         <tbody id="cart-body">
                             <!-- Selected products will be dynamically added here -->
                         </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" class="text-right">Net Total:</td>
+                                <td id="net-total">BDT 0</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">Delivery Charge:</td>
+                                <td>
+                                    <input type="number" id="delivery-charge" value="" min="0" class="form-control" style="width: 100px;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">Discount:</td>
+                                <td>
+                                    <input type="number" id="discount" value="" min="0" class="form-control" style="width: 100px;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">Total Sum:</td>
+                                <td id="grand-total">BDT 0</td>
+                            </tr>
+                        </tfoot>
                     </table>
+                    
                 
                     <!-- Hidden fields for product IDs and quantities -->
                     <input type="hidden" name="product_ids[]" id="product_ids">
@@ -157,9 +183,8 @@
     $(document).ready(function() {
         // Handle form submission
         $('form').on('submit', function(e) {
-            updateHiddenFields(); // Ensure hidden fields are updated before submission
+            updateHiddenFields(); 
         });
-
         // Handle product search
         $('#search_product').on('input', function() {
             var query = $(this).val();
@@ -173,9 +198,9 @@
                         if (response.length > 0) {
                             response.forEach(product => {
                                 suggestions += `
-                                    <div class="suggestion-item" data-id="${product.id}" data-name="${product.title}" data-price="${product.price}" data-thumbnail="${product.thumbnail}">
+                                    <div class="suggestion-item" data-id="${product.id}" data-name="${product.title}" data-price="${product.price-product.discount}" data-thumbnail="${product.thumbnail}">
                                         <img src="/images/galleries/${product.thumbnail}" alt="${product.title}">
-                                        <span>${product.title} - BDT ${product.price}</span>
+                                        <span>${product.title} - BDT ${product.price-product.discount}</span>
                                     </div>`;
                             });
                         } else {
@@ -244,17 +269,29 @@
                 netTotal += parseFloat(subtotal);
             });
 
-            var shippingCharge = parseFloat($('#shipping_method').val());
-            var grandTotal = netTotal + shippingCharge;
+            var deliveryCharge = parseFloat($('#delivery-charge').val()) || 0; // Get the delivery charge
+            var discount = parseFloat($('#discount').val()) || 0; // Get the discount
+            var grandTotal = netTotal + deliveryCharge - discount; // Calculate grand total
 
-            $('#net-total').text('BDT ' + netTotal);
-            $('#shipping_charge').text('BDT ' + shippingCharge);
-            $('#grand-total').text('BDT ' + grandTotal);
+            $('#net-total').text('BDT ' + netTotal.toFixed(2));
+            $('#grand-total').text('BDT ' + grandTotal.toFixed(2));
         }
+
+        // Update totals when delivery charge changes
+        $('#delivery-charge').on('input', function() {
+            updateTotals();
+        });
+
+        // Update totals when discount changes
+        $('#discount').on('input', function() {
+            updateTotals();
+        });
 
         // Update shipping cost on area change
         $('#shipping_method').on('change', function() {
-            updateTotals();
+            let shippingCharge = parseFloat($(this).val()) || 0;
+            $('#delivery-charge').val(shippingCharge); // Update delivery charge input field
+            updateTotals(); // Recalculate totals
         });
 
         // Update hidden fields with product IDs and quantities

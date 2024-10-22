@@ -1,3 +1,7 @@
+<?php
+    $logo= DB::table('logo')->where('status', 1)->first();
+    $admin= DB::table('users')->where('role_id', 1)->first();
+?>
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 {{-- toster link --}}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
@@ -96,7 +100,12 @@
 			<div class="user_card">
 				<div class="d-flex justify-content-center">
 					<div class="brand_logo_container">
-						<img src="{{asset('green.png')}}" class="brand_logo" alt="Logo">
+						
+						@if ($logo->image)
+						<img src="{{asset('images/logo/' . $logo->image)}}" alt=""  class="brand_logo">
+						@else
+						<img src="{{asset('frontend/uploads/6649146b6febe.png')}}" alt=""  class="brand_logo">
+						@endif
 					</div>
 				</div>
 				<div class="d-flex justify-content-center form_container">

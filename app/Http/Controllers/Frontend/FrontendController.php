@@ -219,13 +219,16 @@ class FrontendController extends Controller
         }
         // dd($related_products_arr);
         $company_info=DB::table('users')->where('role_id', 1)->first();
+        $delivery_charge=DB::table('delivery_charge')->where('status', 1)->get();
         $data = [
             'single_product_data' => $product,
             'related_product' =>$related_products_arr,
             'category' => DB::table('category')->where('status', 1)->get(),
             'sub_title'=>'Single Product',
             'company_info'=>$company_info,
+            'delivery_charge'=>$delivery_charge,
         ];
+        
         // dd($data);
 
     
@@ -265,7 +268,7 @@ class FrontendController extends Controller
         $cart = session()->get('cart', []);
         $subtotal = 0;
         $discount = 0;
-        $shipping = 70;
+        $shipping = null;
         $total = 0;
 
         foreach ($cart as $key => $item) {
@@ -295,6 +298,7 @@ class FrontendController extends Controller
         $data['shipping'] = $shipping;
         $data['sub_title'] = 'checkout';
         $data['category'] = DB::table('category')->where('status', 1)->get();
+        $data['delivery_charge']=DB::table('delivery_charge')->where('status', 1)->get();
 
         return view('frontend.pages.shop-checkout', $data);
     }
