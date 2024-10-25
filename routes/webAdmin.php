@@ -115,7 +115,7 @@ Route::middleware('admin')->group(function (){
         Route::get('/product/search',[OrderController::class, 'searchProduct'])->name('product.search');
         Route::post('/store',[OrderController::class, 'store'])->name('store');
         Route::get('/update/{id}',[OrderController::class, 'userupdatePage'])->name('update.page');
-        Route::post('/update',[OrderController::class, 'userUpdate'])->name('update');
+        Route::post('/update',[OrderController::class, 'OrderUpdate'])->name('update');
         Route::get('/delete/{id}',[OrderController::class, 'userDelete'])->name('delete');
         Route::get('/status/update',[OrderController::class, 'orderStatusUpdate'])->name('status.update');
         Route::get('/invoice/{id}', [OrderController::class, 'invoice'])->name('invoice');

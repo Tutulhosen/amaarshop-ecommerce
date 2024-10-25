@@ -44,7 +44,7 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         
-
+        // dd($request->all());
         // Retrieve and parse the input data
         $product_ids = $request->input('product_ids');
         foreach ($product_ids as $key => $value) {
@@ -62,7 +62,9 @@ class OrderController extends Controller
         }
         $total= array_sum($new_subtotals);
        
-        $delivery_charge = (int)$request->input('shipping_method');
+        $delivery_charge = (int)$request->input('delivery_charge_hidden');
+        $discount = (int)$request->input('discount_hidden');
+        $total_sum=($total+$delivery_charge)-$discount;
         // dd($delivery_charge);
         // Retrieve the last order_code
         $lastOrder = DB::table('customer_order')
@@ -93,12 +95,13 @@ class OrderController extends Controller
                 'customer_id' => null, 
                 'product_id' => $product_id,
                 'products_qty' => $quantity,
-                'total_price' => $total + $delivery_charge,
+                'total_price' => $total_sum,
                 'full_name' => $request->input('full_name'),
                 'delivery_address' => $request->input('delivery_address'),
                 'phone_number' => $request->input('phone_number'),
                 'order_code' => $newOrderCode,
                 'delivery_charge' => $delivery_charge,
+                'discount' => $discount,
             ]);
 
             if ($id) {
@@ -122,11 +125,12 @@ class OrderController extends Controller
         $order_invoice=DB::table('products')
         ->join('customer_order', 'customer_order.product_id', 'products.id')
         ->where('customer_order.order_code', $single_order->order_code)
-        ->select('products.title as title','customer_order.products_qty as products_qty' ,'customer_order.product_id as product_id' ,'products.thumbnail as thumbnail', 'products.price as offer_cost', 'products.discount as discount')
+        ->select('products.title as title','customer_order.products_qty as products_qty' ,'customer_order.product_id as product_id' ,'products.thumbnail as thumbnail', 'products.price as offer_cost', 'products.discount as discount', 'customer_order.delivery_charge as delivery_charge')
         ->get();
         
         $data['single_order']=$single_order;
         $data['order_invoice']=$order_invoice;
+        $data['delivery_charge']=DB::table('delivery_charge')->where('status', 1)->get();
         // dd($data);   
         
         return view('admin.order.edit')->with($data);
@@ -143,6 +147,7 @@ class OrderController extends Controller
         }
         
         $product_ids = $request->input('product_ids');
+        // dd($product_ids);
         foreach ($product_ids as $key => $value) {
             $new_product_ids = explode(',', $value);
         }
@@ -157,8 +162,12 @@ class OrderController extends Controller
             $new_subtotals = explode(',', $value);
         }
         $total= array_sum($new_subtotals);
-       
-        $delivery_charge = (int)$request->input('shipping_method');
+
+        $delivery_charge = (int)$request->input('delivery_charge_hidden');
+        $discount = (int)$request->input('discount_hidden');
+        $total_sum=($total+$delivery_charge)-$discount;
+
+        
         // dd($delivery_charge);
         // Retrieve the last order_code
         $lastOrder = DB::table('customer_order')
@@ -181,6 +190,7 @@ class OrderController extends Controller
 
         // Loop through each product and insert the order
         foreach ($new_product_ids as $index => $product_id) {
+            // dd($product_id);
             $quantity = $new_quantities[$index];
             $subtotal = $new_subtotals[$index];
 
@@ -189,13 +199,15 @@ class OrderController extends Controller
                 'customer_id' => null, 
                 'product_id' => $product_id,
                 'products_qty' => $quantity,
-                'total_price' => $total + $delivery_charge,
+                'total_price' => $total_sum,
                 'full_name' => $request->input('full_name'),
                 'delivery_address' => $request->input('delivery_address'),
                 'phone_number' => $request->input('phone_number'),
                 'order_code' => $order_code,
                 'delivery_charge' => $delivery_charge,
+                'discount' => $discount,
             ]);
+            
 
             if ($id) {
                 $isInserted = true;
@@ -341,7 +353,7 @@ class OrderController extends Controller
         ->where('customer_order.order_code', $single_order->order_code)
         ->select('products.title as title','customer_order.products_qty' ,'customer_order.additional_information as delivery_charge', 'products.price as offer_cost', 'products.discount as discount')
         ->get();
-        
+        // dd($order_invoice);
         
         $data['single_order']=$single_order;
         $data['order_invoice']=$order_invoice;

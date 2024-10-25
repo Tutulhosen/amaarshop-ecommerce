@@ -161,6 +161,8 @@
                     <input type="hidden" name="product_ids[]" id="product_ids">
                     <input type="hidden" name="quantities[]" id="quantities">
                     <input type="hidden" name="subtotals[]" id="subtotals">
+                    <input type="hidden" name="delivery_charge_hidden" id="delivery_charge_hidden">
+                    <input type="hidden" name="discount_hidden" id="discount_hidden">
 
 
 
@@ -279,11 +281,15 @@
 
         // Update totals when delivery charge changes
         $('#delivery-charge').on('input', function() {
+            let shippingCharge = parseFloat($(this).val()) || 0;
+            $('#delivery_charge_hidden').val(shippingCharge);
             updateTotals();
         });
 
         // Update totals when discount changes
         $('#discount').on('input', function() {
+            let shippingCharge = parseFloat($(this).val()) || 0;
+            $('#discount_hidden').val(shippingCharge);
             updateTotals();
         });
 

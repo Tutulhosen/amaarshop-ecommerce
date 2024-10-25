@@ -16,9 +16,9 @@
   <div class="app-brand demo">
     <a href="{{route('admin.dashboard.index')}}" class="app-brand-link" style="">
       @if ($logo->image)
-      <a href="{{route('home')}}"><img src="{{asset('images/logo/' . $logo->image)}}" alt="" style="width: 200px"></a>
+      <a href="{{route('admin.dashboard.index')}}"><img src="{{asset('images/logo/' . $logo->image)}}" alt="" style="width: 200px"></a>
       @else
-      <a href="{{route('home')}}"><img src="{{asset('frontend/uploads/6649146b6febe.png')}}" alt="" style="width: 200px"></a>
+      <a href="{{route('admin.dashboard.index')}}"><img src="{{asset('frontend/uploads/6649146b6febe.png')}}" alt="" style="width: 200px"></a>
       @endif
       
     </a>

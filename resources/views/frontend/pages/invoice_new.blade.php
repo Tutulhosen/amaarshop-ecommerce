@@ -291,7 +291,7 @@
                                     <td></td>
                                     <td></td>
                                     <td class="text-right">Delivery charges:</td>
-                                    <td class="text-right">{{delivery_charge($item->delivery_charge)}}</td>
+                                    <td class="text-right">{{$single_order->delivery_charge}}</td>
                                 </tr>
                                 {{-- <tr class="heading">
                                     <td colspan="2"></td>
@@ -307,7 +307,7 @@
                                     <td></td>
                                     <td></td>
                                     <td class="text-right">Total:</td>
-                                    <td class="text-right">{{ number_format($total + delivery_charge($item->delivery_charge), 2) }}</td>
+                                    <td class="text-right">{{$single_order->total_price}}</td>
                                 </tr>
                                 
                             </tbody>

@@ -90,6 +90,7 @@
                 </div><br>
                 <form action="{{ route('admin.order.update.by', $single_order->order_code) }}" method="POST">
                     @csrf
+                    @method('POST')
                     <div class="form-group">
                         <label for="customer">Customer: <span class="text-danger">*</span></label>
                         <input type="text" id="customer" name="full_name" value="{{ $single_order->full_name }}" required>
@@ -103,20 +104,23 @@
                         <input type="text" id="address" name="delivery_address" value="{{ $single_order->delivery_address }}" required>
                     </div>
                     <div class="form-group">
-                        <label for="shipping_method">আপনার এরিয়া সিলেক্ট করুন <span class="text-danger">*</span></label>
+                        <label for="shipping_method">Select Area<span class="text-danger">*</span></label>
                         <select name="shipping_method" id="shipping_method" class="form-control" required>
-                            <option value="70" {{ $single_order->delivery_charge == '70' ? 'selected' : '' }}>ঢাকার ভিতরে</option>
-                            <option value="170" {{ $single_order->delivery_charge == '170' ? 'selected' : '' }}>ঢাকার বাইরে</option>
+                            <option value="">--select area--</option>
+                            @foreach ($delivery_charge as $item)
+                            <option value="{{ $item->charge }}" {{ $single_order->delivery_charge == $item->charge ? 'selected' : '' }}>{{ $item->name_en }}</option>
+                            @endforeach
                         </select>
                     </div>
-                
+
                     <!-- Search Product -->
                     <div class="form-group product-select" style="position: relative;">
                         <label for="search_product">Item: </label>
                         <input type="text" id="search_product" placeholder="Type to search..." autocomplete="off">
                         <div class="autocomplete-items"></div>
                     </div>            
-                
+
+                    <!-- Cart Table -->
                     <table class="cart_table table table-bordered table-striped text-center mb-0">
                         <thead>
                             <tr>
@@ -128,39 +132,60 @@
                             </tr>
                         </thead>
                         <tbody id="cart-body">
-                            @foreach($order_invoice as $item)
-                            <tr>
-                                <td>
-                                    <button type="button" class="btn btn-danger btn-sm remove-item" data-id="{{ $item->product_id }}">Remove</button>
-                                </td>
-                                <td>
-                                    <img src="/images/galleries/{{ $item->thumbnail }}" width="35" alt="{{ $item->title }}">
-                                    {{ $item->title }}
-                                </td>
-                                <td>BDT {{ $item->offer_cost }}</td>
-                                <td>
-                                    <input type="number" name="qty" value="{{ $item->products_qty }}" min="1" class="form-control qty-input" style="width: 60px;">
-                                </td>
-                                <td class="subtotal">BDT {{ $item->offer_cost * $item->products_qty }}</td>
-                            </tr>
+                            @foreach ($order_invoice as $product)
+                                <tr>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-sm remove-item" data-id="{{ $product->product_id }}">Remove</button>
+                                    </td>
+                                    <td>
+                                        <img src="/images/galleries/{{ $product->thumbnail }}" width="35" alt="{{ $product->title }}">
+                                        {{ $product->title }}
+                                    </td>
+                                    <td>BDT {{ $product->offer_cost - $product->discount }}</td>
+                                    <td>
+                                        <input type="number" name="qty" value="{{ $product->products_qty }}" min="1" class="form-control qty-input" style="width: 60px;">
+                                    </td>
+                                    <td class="subtotal">BDT {{ ($product->offer_cost - $product->discount) * $product->products_qty }}</td>
+                                </tr>
                             @endforeach
                         </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" class="text-right">Net Total:</td>
+                                <td id="net-total">BDT 0</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">Delivery Charge:</td>
+                                <td>
+                                    <input type="number" id="delivery-charge" value="{{ $single_order->delivery_charge }}" min="0" class="form-control" style="width: 100px;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">Discount:</td>
+                                <td>
+                                    <input type="number" id="discount" value="{{ $single_order->discount }}" min="0" class="form-control" style="width: 100px;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">Total Sum:</td>
+                                <td id="grand-total">BDT 0</td>
+                            </tr>
+                        </tfoot>
                     </table>
-                
+                    
                     <!-- Hidden fields for product IDs and quantities -->
-                    <input type="hidden" name="product_ids[]" id="product_ids" value="{{ $order_invoice->pluck('product_id')->join(',') }}">
-                    <input type="hidden" name="quantities[]" id="quantities" value="{{ $order_invoice->pluck('products_qty')->join(',') }}">
-                    <input type="hidden" name="subtotals[]" id="subtotals" value="{{ $order_invoice->pluck('sub_total')->join(',') }}">
-                
+                    <input type="hidden" name="product_ids[]" id="product_ids">
+                    <input type="hidden" name="quantities[]" id="quantities">
+                    <input type="hidden" name="subtotals[]" id="subtotals">
+                    <input type="hidden" name="delivery_charge_hidden" id="delivery_charge_hidden">
+                    <input type="hidden" name="discount_hidden" id="discount_hidden">
+
                     <div style="margin-top: 20px;">
-                        <button class="save-btn">Update Order</button>
+                        <button class="save-btn">Update</button>
                     </div>
                 </form> 
-                
             </div>
         </div>
-        
-        
     </div>
 </div>
 @endsection
@@ -168,10 +193,8 @@
 @section('scripts')
 <script>
     $(document).ready(function() {
-        // Handle form submission
-        $('form').on('submit', function(e) {
-            updateHiddenFields(); // Ensure hidden fields are updated before submission
-        });
+        // Preload totals when page loads
+        updateTotals();
 
         // Handle product search
         $('#search_product').on('input', function() {
@@ -186,9 +209,9 @@
                         if (response.length > 0) {
                             response.forEach(product => {
                                 suggestions += `
-                                    <div class="suggestion-item" data-id="${product.id}" data-name="${product.title}" data-price="${product.price}" data-thumbnail="${product.thumbnail}">
+                                    <div class="suggestion-item" data-id="${product.id}" data-name="${product.title}" data-price="${product.price-product.discount}" data-thumbnail="${product.thumbnail}">
                                         <img src="/images/galleries/${product.thumbnail}" alt="${product.title}">
-                                        <span>${product.title} - BDT ${product.price}</span>
+                                        <span>${product.title} - BDT ${product.price-product.discount}</span>
                                     </div>`;
                             });
                         } else {
@@ -223,83 +246,75 @@
                         <input type="number" name="qty" value="1" min="1" class="form-control qty-input" style="width: 60px;">
                     </td>
                     <td class="subtotal">BDT ${productPrice}</td>
-                </tr>
-            `;
-
+                </tr>`;
+            
             $('#cart-body').append(row);
             $('.autocomplete-items').hide();
-            $('#search_product').val('');
-
             updateTotals();
         });
 
-        // Remove product from cart
+        // Handle quantity change
+        $(document).on('input', '.qty-input', function() {
+            var qty = $(this).val();
+            var price = $(this).closest('tr').find('td:nth-child(3)').text().replace('BDT ', '');
+            var subtotal = qty * price;
+            $(this).closest('tr').find('.subtotal').text('BDT ' + subtotal);
+            updateTotals();
+        });
+
+        // Handle removing item from cart
         $(document).on('click', '.remove-item', function() {
             $(this).closest('tr').remove();
             updateTotals();
         });
 
-        // Update total on quantity change
-        $(document).on('input', '.qty-input', function() {
-            var qty = $(this).val();
-            var price = $(this).closest('tr').find('td:nth-child(3)').text().replace('BDT', '').trim();
-            var subtotal = qty * price;
-            $(this).closest('tr').find('.subtotal').text('BDT ' + subtotal);
-
+        // Handle delivery charge and discount change
+        $('#delivery-charge, #discount').on('input', function() {
             updateTotals();
         });
 
-        // Update net total, shipping, and grand total
+        // Function to update totals
         function updateTotals() {
             var netTotal = 0;
-            $('#cart-body tr').each(function() {
-                var subtotal = $(this).find('.subtotal').text().replace('BDT', '').trim();
-                netTotal += parseFloat(subtotal);
-            });
-
-            var shippingCharge = parseFloat($('#shipping_method').val());
-            var grandTotal = netTotal + shippingCharge;
-
-            $('#net-total').text('BDT ' + netTotal);
-            $('#shipping_charge').text('BDT ' + shippingCharge);
-            $('#grand-total').text('BDT ' + grandTotal);
-        }
-
-        // Update shipping cost on area change
-        $('#shipping_method').on('change', function() {
-            updateTotals();
-        });
-
-        // Update hidden fields with product IDs and quantities
-        function updateHiddenFields() {
             var productIds = [];
             var quantities = [];
-            var subtotals = []; // New array for subtotals
+            var subtotals = [];
 
-            // Loop through each product row
+            // Loop through each cart row and gather data
             $('#cart-body tr').each(function() {
-                var productId = $(this).find('.remove-item').data('id'); 
-                var qty = $(this).find('.qty-input').val(); 
-                var subtotal = $(this).find('.subtotal').text().replace('BDT', '').trim(); // Get subtotal
+                var productId = $(this).find('.remove-item').data('id'); // Get the product ID
+                var qty = $(this).find('.qty-input').val(); // Get the quantity
+                var price = parseFloat($(this).find('td:nth-child(3)').text().replace('BDT ', '')); // Get the price
+                var subtotal = qty * price; // Calculate subtotal
 
-                if (productId && qty && subtotal) {
-                    productIds.push(productId);
-                    quantities.push(qty); 
-                    subtotals.push(subtotal); // Push subtotal to array
-                }
+                // Add to the hidden fields arrays
+                productIds.push(productId);
+                quantities.push(qty);
+                subtotals.push(subtotal);
+
+                netTotal += subtotal; // Add to the total
+                $(this).find('.subtotal').text('BDT ' + subtotal); // Update subtotal in the table
             });
 
-            // Join the arrays into comma-separated strings
-            $('#product_ids').val(productIds.join(',')); 
-            $('#quantities').val(quantities.join(',')); 
-            $('#subtotals').val(subtotals.join(',')); // Ensure this is set up as a comma-separated string
+            // Update the net total
+            $('#net-total').text('BDT ' + netTotal);
+
+            // Get delivery charge and discount
+            var deliveryCharge = parseFloat($('#delivery-charge').val()) || 0;
+            var discount = parseFloat($('#discount').val()) || 0;
+
+            // Calculate grand total
+            var grandTotal = netTotal + deliveryCharge - discount;
+            $('#grand-total').text('BDT ' + grandTotal);
+
+            // Populate hidden inputs
+            $('#product_ids').val(productIds.join(',')); // Convert array to comma-separated string
+            $('#quantities').val(quantities.join(','));
+            $('#subtotals').val(subtotals.join(','));
+            $('#delivery_charge_hidden').val(deliveryCharge);
+            $('#discount_hidden').val(discount);
         }
 
-
-
-
     });
-
-
 </script>
 @endsection
