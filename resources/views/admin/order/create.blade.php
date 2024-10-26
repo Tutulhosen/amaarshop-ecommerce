@@ -112,9 +112,13 @@
                    
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="note">Note: </label>
+                        <input type="text" id="note" name="note" required>
+                    </div>
                     <!-- Search Product -->
                     <div class="form-group product-select" style="position: relative;">
-                        <label for="search_product">Item: </label>
+                        <label for="search_product">Item: <span class="text-danger">*</span> </label>
                         <input type="text" id="search_product" placeholder="Type to search..." autocomplete="off">
                         <div class="autocomplete-items"></div>
                     </div>            

@@ -119,6 +119,10 @@ Route::middleware('admin')->group(function (){
         Route::get('/delete/{id}',[OrderController::class, 'userDelete'])->name('delete');
         Route::get('/status/update',[OrderController::class, 'orderStatusUpdate'])->name('status.update');
         Route::get('/invoice/{id}', [OrderController::class, 'invoice'])->name('invoice');
+        Route::post('/invoice/thankyou', [OrderController::class, 'invoiceThankyou'])->name('invoice.thankyou');
+
+
+
     });
 
     // top header route

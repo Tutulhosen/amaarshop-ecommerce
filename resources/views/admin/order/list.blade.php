@@ -78,6 +78,8 @@
                                 <th>Customer Name</th>
                                 <th>Total Price</th>
                                 <th>Phone Number</th>
+                                <th>Order Date</th>
+                                <th>Note</th>
                                 <th>invoice</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -96,7 +98,18 @@
                                             <td>{{$order->full_name}}</td>
                                             <td>{{$order->total_price}}</td>
                                             <td>{{$order->phone_number}}</td>
-                                            <td style="text-align:center"><a href="{{route('admin.order.invoice', $order->id)}}" target="_blank"><i id="invoice" class="fa-solid fa-file-lines" style="font-size: 30px; text-align:center; cursor:pointer; color:green"></i></a></td>
+                                            <td>{{ \Carbon\Carbon::parse($order->order_date)->format('Y-m-d') }}</td>
+                                            <td>{{$order->note}}</td>
+                                            <td style="text-align:center">
+                                                <form action="{{ route('admin.order.invoice.thankyou') }}" method="POST" target="_blank" id="invoiceForm-{{ $order->id }}">
+                                                    @csrf
+                                                    <input type="hidden" name="order_id" value="{{ $order->id }}">
+                                                    <i id="invoice" class="fa-solid fa-file-lines" style="font-size: 30px; text-align:center; cursor:pointer; color:green" onclick="document.getElementById('invoiceForm-{{ $order->id }}').submit();"></i>
+                                                </form>
+                                            </td>
+                                            
+                                            
+                                            
                                             <?php 
                                                 $color=' ';
                                                 $bg_color=' ';
@@ -353,14 +366,18 @@
                                     <td>${order.full_name}</td>
                                     <td>${order.total_price}</td>
                                     <td>${order.phone_number}</td>
+                                    <td>${new Date(order.order_date).toISOString().split('T')[0]}</td>
+                                    <td>${order.note}</td>
                                     <td style="text-align:center">
-                                        <a href="/admin/order/invoice/${order.id}" target="_blank">
-                                            <i class="fa-solid fa-file-lines" style="font-size: 30px; text-align:center; cursor:pointer; color:green"></i>
-                                        </a>
+                                        <form action="/admin/order/invoice/thankyou" method="POST" target="_blank" id="invoiceForm-${order.id}">
+                                            <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
+                                            <input type="hidden" name="order_id" value="${order.id}">
+                                            <i class="fa-solid fa-file-lines" style="font-size: 30px; text-align:center; cursor:pointer; color:green" onclick="document.getElementById('invoiceForm-${order.id}').submit();"></i>
+                                        </form>
                                     </td>
                                     <td>
                                         <button style="border-radius: 5px; color:${color}; background-color:${bg_color}; border:2px solid ${bg_color}">
-                                            ${orderStatusMap[order.order_status]} <!-- Use the orderStatusMap here -->
+                                            ${orderStatusMap[order.order_status]}
                                         </button>
                                     </td>
                                     <td>
@@ -371,10 +388,12 @@
                                             <div class="dropdown-menu">
                                                 ${order.order_status == 0 ? `
                                                     <a class="dropdown-item" href="javascript:void(0);" id="accept_btn" data-id="${order.order_code}" data-type="accept">Accept</a>
+                                                    <a class="dropdown-item" href="{{ route('admin.order.edit', $order->order_code) }}">Edit</a>
                                                     <a class="dropdown-item" href="javascript:void(0);" id="cancel_btn" data-id="${order.order_code}" data-type="cancel">Cancel</a>` : ''}
                                                 
                                                 ${order.order_status == 2 ? `
                                                     <a class="dropdown-item" href="javascript:void(0);" id="on_delivery_btn" data-id="${order.order_code}" data-type="on_delivery">On Delivery</a>
+                                                    <a class="dropdown-item" href="{{ route('admin.order.edit', $order->order_code) }}">Edit</a>
                                                     ${order.is_order_placed ? 
                                                     `<a class="dropdown-item" href="javascript:void(0);" id="show_status_btn" data-id="${order.is_order_placed}" data-type="show_status">Show Delivery Status</a>` :
                                                     `<a class="dropdown-item" href="javascript:void(0);" id="place_order_btn" data-id="${order.id}" data-type="place_order">Place Order</a>`}
@@ -393,6 +412,8 @@
                                     </td>
                                 </tr>
                             `);
+
+
                         });
                     } else {
                         $('.table tbody').append('<tr><td colspan="7">No orders found.</td></tr>');

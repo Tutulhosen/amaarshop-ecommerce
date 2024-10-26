@@ -103,19 +103,24 @@
                         <label for="address">Address: <span class="text-danger">*</span></label>
                         <input type="text" id="address" name="delivery_address" value="{{ $single_order->delivery_address }}" required>
                     </div>
+                    
                     <div class="form-group">
                         <label for="shipping_method">Select Area<span class="text-danger">*</span></label>
                         <select name="shipping_method" id="shipping_method" class="form-control" required>
                             <option value="">--select area--</option>
                             @foreach ($delivery_charge as $item)
-                            <option value="{{ $item->charge }}" {{ $single_order->delivery_charge == $item->charge ? 'selected' : '' }}>{{ $item->name_en }}</option>
+                            <option value="{{ $item->charge }}" {{ $single_order->delivery_area == $item->charge ? 'selected' : '' }}>{{ $item->name_en }}</option>
                             @endforeach
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Note: </span></label>
+                        <input type="text" id="note" name="note" value="{{ $single_order->note }}" required>
                     </div>
 
                     <!-- Search Product -->
                     <div class="form-group product-select" style="position: relative;">
-                        <label for="search_product">Item: </label>
+                        <label for="search_product">Item: <span class="text-danger">*</label>
                         <input type="text" id="search_product" placeholder="Type to search..." autocomplete="off">
                         <div class="autocomplete-items"></div>
                     </div>            

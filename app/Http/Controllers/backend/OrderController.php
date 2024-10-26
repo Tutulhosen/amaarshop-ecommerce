@@ -12,7 +12,7 @@ class OrderController extends Controller
 {
     public function orderList(){
         $data['order_list'] = DB::table('customer_order')
-        ->select('order_code', DB::raw('MAX(id) as id'), DB::raw('MAX(total_price) as total_price'), DB::raw('MAX(full_name) as full_name'), DB::raw('MAX(order_status) as order_status'), DB::raw('MAX(order_date) as order_date'), DB::raw('MAX(phone_number) as phone_number'))
+        ->select('order_code', DB::raw('MAX(id) as id'), DB::raw('MAX(total_price) as total_price'), DB::raw('MAX(full_name) as full_name'), DB::raw('MAX(order_status) as order_status'), DB::raw('MAX(order_date) as order_date'), DB::raw('MAX(phone_number) as phone_number'), DB::raw('MAX(note) as note'))
         ->groupBy('order_code')
         ->orderBy('id', 'DESC')
         ->paginate(10);
@@ -61,8 +61,15 @@ class OrderController extends Controller
             $new_subtotals = explode(',', $value);
         }
         $total= array_sum($new_subtotals);
+        if ((int)$request->input('delivery_charge_hidden')==0) {
+            $delivery_charge = (int)$request->input('shipping_method');
+        } else {
+            $delivery_charge = (int)$request->input('delivery_charge_hidden');
+        }
        
-        $delivery_charge = (int)$request->input('delivery_charge_hidden');
+        
+        // dd($delivery_charge);
+        $shipping_method = (int)$request->input('shipping_method');
         $discount = (int)$request->input('discount_hidden');
         $total_sum=($total+$delivery_charge)-$discount;
         // dd($delivery_charge);
@@ -99,6 +106,8 @@ class OrderController extends Controller
                 'full_name' => $request->input('full_name'),
                 'delivery_address' => $request->input('delivery_address'),
                 'phone_number' => $request->input('phone_number'),
+                'note' => $request->input('note'),
+                'delivery_area' => $request->input('shipping_method'),
                 'order_code' => $newOrderCode,
                 'delivery_charge' => $delivery_charge,
                 'discount' => $discount,
@@ -125,7 +134,7 @@ class OrderController extends Controller
         $order_invoice=DB::table('products')
         ->join('customer_order', 'customer_order.product_id', 'products.id')
         ->where('customer_order.order_code', $single_order->order_code)
-        ->select('products.title as title','customer_order.products_qty as products_qty' ,'customer_order.product_id as product_id' ,'products.thumbnail as thumbnail', 'products.price as offer_cost', 'products.discount as discount', 'customer_order.delivery_charge as delivery_charge')
+        ->select('products.title as title','customer_order.products_qty as products_qty' ,'customer_order.product_id as product_id' ,'products.thumbnail as thumbnail', 'products.price as offer_cost', 'products.discount as discount', 'customer_order.delivery_charge as delivery_charge' , 'customer_order.note as note', 'customer_order.delivery_area as delivery_area')
         ->get();
         
         $data['single_order']=$single_order;
@@ -163,7 +172,11 @@ class OrderController extends Controller
         }
         $total= array_sum($new_subtotals);
 
-        $delivery_charge = (int)$request->input('delivery_charge_hidden');
+        if ((int)$request->input('delivery_charge_hidden')==0) {
+            $delivery_charge = (int)$request->input('shipping_method');
+        } else {
+            $delivery_charge = (int)$request->input('delivery_charge_hidden');
+        }
         $discount = (int)$request->input('discount_hidden');
         $total_sum=($total+$delivery_charge)-$discount;
 
@@ -202,7 +215,9 @@ class OrderController extends Controller
                 'total_price' => $total_sum,
                 'full_name' => $request->input('full_name'),
                 'delivery_address' => $request->input('delivery_address'),
+                'delivery_area' => $request->input('shipping_method'),
                 'phone_number' => $request->input('phone_number'),
+                'note' => $request->input('note'),
                 'order_code' => $order_code,
                 'delivery_charge' => $delivery_charge,
                 'discount' => $discount,
@@ -242,7 +257,7 @@ class OrderController extends Controller
         $order_status=(int)$request->order_status;
         // dd($request->order_code);
         $query = DB::table('customer_order')
-        ->select('order_code', DB::raw('MAX(id) as id'), DB::raw('MAX(total_price) as total_price'), DB::raw('MAX(full_name) as full_name'), DB::raw('MAX(order_status) as order_status'), DB::raw('MAX(order_date) as order_date'), DB::raw('MAX(phone_number) as phone_number'));
+        ->select('order_code', DB::raw('MAX(id) as id'), DB::raw('MAX(total_price) as total_price'), DB::raw('MAX(full_name) as full_name'), DB::raw('MAX(order_status) as order_status'), DB::raw('MAX(order_date) as order_date'), DB::raw('MAX(phone_number) as phone_number'), DB::raw('MAX(note) as note'));
 
         if ($request->order_code) {
             $orderCode = trim($request->order_code); 
@@ -286,6 +301,7 @@ class OrderController extends Controller
             'order_status' => $value->order_status,
             'order_date' => $value->order_date,
             'phone_number' => $value->phone_number,
+            'note' => $value->note ?? '',
            ];
 
            array_push($order_arr, $datas);
@@ -343,24 +359,51 @@ class OrderController extends Controller
 
     }
 
-     //invoice
-     public function invoice($id){
+    //invoice
+    public function invoice($id) {
         $data['category'] = DB::table('category')->where('status', 1)->get();
-        $single_order=DB::table('customer_order')->where('id', $id)->first();
-        // dd($single_order);
-        $order_invoice=DB::table('products')
-        ->join('customer_order', 'customer_order.product_id', 'products.id')
-        ->where('customer_order.order_code', $single_order->order_code)
-        ->select('products.title as title','customer_order.products_qty' ,'customer_order.additional_information as delivery_charge', 'products.price as offer_cost', 'products.discount as discount')
-        ->get();
-        // dd($order_invoice);
-        
-        $data['single_order']=$single_order;
-        $data['order_invoice']=$order_invoice;
-        $data['sub_title']='invoice';
+        $single_order = DB::table('customer_order')->where('id', $id)->first();
+        // dd($id);
+        if ($single_order) {
+            $order_invoice = DB::table('products')
+                ->join('customer_order', 'customer_order.product_id', 'products.id')
+                ->where('customer_order.order_code', $single_order->order_code)
+                ->select('products.title as title', 'customer_order.products_qty', 'customer_order.additional_information as delivery_charge', 'products.price as offer_cost', 'products.discount as discount')
+                ->get();
+        }
+    
+        $data['single_order'] = $single_order;
+        $data['order_invoice'] = $order_invoice ?? [];
+        $data['sub_title'] = 'invoice';
         
         return view('frontend.pages.invoice_new')->with($data);
     }
+    
+
+    public function invoiceThankyou(Request $request)
+    {
+        $id = $request->input('order_id');  // Get the dynamic order ID from the request
+
+        $data['category'] = DB::table('category')->where('status', 1)->get();
+        $single_order = DB::table('customer_order')->where('id', $id)->first();
+
+        if ($single_order) {
+            $order_invoice = DB::table('products')
+                ->join('customer_order', 'customer_order.product_id', 'products.id')
+                ->where('customer_order.order_code', $single_order->order_code)
+                ->select('products.title as title', 'customer_order.products_qty', 'customer_order.additional_information as delivery_charge', 'products.price as offer_cost', 'products.discount as discount')
+                ->get();
+        }
+
+        $data['single_order'] = $single_order;
+        $data['order_invoice'] = $order_invoice ?? [];
+        $data['sub_title'] = 'invoice';
+
+        return view('frontend.pages.invoice_new')->with($data);
+    }
+
+    
+
 
     //place order at stead fast
     public function placeOrder(Request $request)
