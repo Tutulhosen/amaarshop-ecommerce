@@ -14,12 +14,12 @@ class OrderController extends Controller
         $data['order_list'] = DB::table('customer_order')
         ->select('order_code', DB::raw('MAX(id) as id'), DB::raw('MAX(total_price) as total_price'), DB::raw('MAX(full_name) as full_name'), DB::raw('MAX(order_status) as order_status'), DB::raw('MAX(order_date) as order_date'), DB::raw('MAX(phone_number) as phone_number'), DB::raw('MAX(note) as note'))
         ->groupBy('order_code')
-        ->orderBy('id', 'DESC')
+        ->orderBy('order_code', 'DESC')
         ->paginate(10);
         
 
         // dd($data['order_list']);
-        
+        // dd($data['order_list']);
         return view('admin.order.list')->with($data);
     }
 
@@ -286,7 +286,7 @@ class OrderController extends Controller
         }
 
         $orders = $query->groupBy('order_code')
-        ->orderBy('id', 'DESC')->get();
+        ->orderBy('order_code', 'DESC')->get();
         
         $order_arr=[];
         foreach ($orders as $key => $value) {
@@ -334,6 +334,11 @@ class OrderController extends Controller
                 ]);
             }
             if ($type=='on_delivery') {
+                
+                $id= DB::table('place_order')->insertGetId([
+                        'order_code' => $id,
+                        'app_name' => 'menual',
+                    ]);
                 DB::table('customer_order')->where('id', $value->id)->update([
                     'order_status' => 3
                 ]);

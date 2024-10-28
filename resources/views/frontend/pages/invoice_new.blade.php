@@ -293,14 +293,14 @@
                                     <td class="text-right">Delivery charges:</td>
                                     <td class="text-right">{{$single_order->delivery_charge}}</td>
                                 </tr>
-                                {{-- <tr class="heading">
+                                <tr class="heading">
                                     <td colspan="2"></td>
                                     <td class="text-right"></td>
                                     <td></td>
                                     <td></td>
                                     <td class="text-right">Discount:</td>
-                                    <td class="text-right">(-)0.00</td>
-                                </tr> --}}
+                                    <td class="text-right">{{$single_order->discount}}</td>
+                                </tr>
                                 <tr class="heading">
                                     <td colspan="2" class="text-right"></td>
                                     <td class="text-right"></td>

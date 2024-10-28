@@ -68,6 +68,8 @@ Route::get('/cart/count', function () {
     return response()->json(['count' => $totalItems]);
 })->name('cart.count');
 
+
+
 //frontend route
 Route::get('/customer-login', [FrontendController::class, 'login_page'])->name('frontend.login');
 Route::post('/customer-logedin', [FrontendController::class, 'customer_login'])->name('frontend.customer.login');
@@ -94,7 +96,7 @@ Route::get('/profile/update/page', [ProfileController::class, 'profile_update_pa
 Route::post('/profile/update', [ProfileController::class, 'profile_update'])->name('user.profile.update');
 Route::get('/address/update/page', [ProfileController::class, 'address_update_page'])->name('user.address.update.page');
 Route::post('/address/update', [ProfileController::class, 'address_update'])->name('user.address.update');
-Route::get('/invoice/{id}', [ProfileController::class, 'invoice'])->name('product.invoice');
+Route::get('/invoice/thankyou', [ProfileController::class, 'invoice'])->name('product.invoice');
 Route::get('/download-invoice/{id}', [ProfileController::class, 'downloadInvoice'])->name('download.invoice');
 
 //get dependency data route

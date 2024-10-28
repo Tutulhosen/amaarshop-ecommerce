@@ -37,19 +37,10 @@ class ProfileController extends Controller
     }
 
     //invoice
-    public function invoice($id){
+    public function invoice(){
         $data['category'] = DB::table('category')->where('status', 1)->get();
-        $single_order=DB::table('customer_order')->where('id', $id)->first();
-        // dd($single_order);
-        $order_invoice=DB::table('products')
-        ->join('customer_order', 'customer_order.product_id', 'products.id')
-        ->where('customer_order.order_code', $single_order->order_code)
-        ->select('products.title as title','customer_order.products_qty' ,'customer_order.additional_information as delivery_charge', 'products.price as offer_cost', 'products.discount as discount')
-        ->get();
         
         
-        $data['single_order']=$single_order;
-        $data['order_invoice']=$order_invoice;
         $data['sub_title']='invoice';
         
         return view('frontend.pages.invoice')->with($data);

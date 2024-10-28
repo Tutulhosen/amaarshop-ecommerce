@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
-
+use Illuminate\Support\Facades\Mail;
 class FrontendController extends Controller
 {
     //login page
@@ -350,7 +350,7 @@ class FrontendController extends Controller
 
         // Format the new order code 
         $newOrderCode = 'GM-' . str_pad($newOrderNumber, 2, '0', STR_PAD_LEFT);
-
+        // dd($newOrderCode);
         // Flag to track whether the order insertion was successful
         $isInserted = false;
         $total_array=[];
@@ -377,7 +377,8 @@ class FrontendController extends Controller
                 'email_address' => $request->input('email_address'),
                 'additional_information' => $additionalAddress, 
                 'payment_method' => $request->input('payment_method'),
-                'order_code' => $newOrderCode
+                'order_code' => $newOrderCode,
+                'delivery_charge' => $delivery_charge,
             ]);
 
             if ($id) {
@@ -397,7 +398,19 @@ class FrontendController extends Controller
                 session()->flush();
                 $isCustomerlogin = false;
             }
+           // Get the admin email
+            $admin_user = DB::table('users')->where('role_id', 1)->first();
+            $admin_email = $admin_user->company_email;
 
+            // Prepare email details
+            $email_subject = "New Order Received";
+            $email_body = "A new order has been placed with order code: " . $newOrderCode;
+
+            // Send the email
+            Mail::raw($email_body, function ($message) use ($admin_email, $email_subject) {
+                $message->to($admin_email)
+                        ->subject($email_subject);
+            });
             
             return response()->json([
                 'success' => true,

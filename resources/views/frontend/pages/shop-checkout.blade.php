@@ -278,7 +278,7 @@
                                 window.location.href = '{{ route("user.profile") }}';
                             } else {
                                 let id =response.id;
-                                window.location.href = '{{ route("product.invoice", ":id") }}'.replace(':id', id);
+                                window.location.href = '{{ route("product.invoice") }}';
                             }
                         }, 3000);
                     },
